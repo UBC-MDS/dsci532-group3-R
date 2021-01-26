@@ -1,6 +1,7 @@
 library(dash)
 library(dashCoreComponents)
 library(dashHtmlComponents)
+library(dashBootstrapComponents)
 
 library(tidyverse)
 
@@ -106,47 +107,117 @@ world_daywise_df <- country_daywise_df %>%
 
 print(head(world_daywise_df))
 
+countries <- country_daywise_df %>%
+    select(country_region) %>%
+    unique()
+
+print(countries)
+
+regions <- region_daywise_df %>%
+    select(who_region) %>%
+    unique()
+
+print(regions)
+
 # 4: Declare objects
 
 # 4.1: Declare options for Selection Mode / Data Mode as factors
 
 # 4.2: Selection mode (World, Regions, Countries)
-
+selection_mode <- htmlH3('Selection_Mode',
+                         style=list('color' = 'cyan', 'background-color' = '#000000')
+)
 # 4.2.1: Empty Div for World
+blank_div <- htmlDiv('Blank Div',
+                     style=list('color' = 'white', 'background-color' = 'red')
+)
 
 # 4.2.2: Dropdown list for Regions
+region_selection <- htmlDiv('Region Selection',
+                     style=list('color' = 'white', 'background-color' = 'blue')
+)
 
 # 4.2.3: Drop down list for Countries
+country_selection <- htmlDiv('Country Selection',
+                             style=list('color' = 'white',
+                                        'background-color' = 'green')
+)
 
 # 4.3: Date Range Picker
+date_range_selection <- htmlDiv('Date Range Selection',
+                             style=list('color' = 'white',
+                                        'background-color' = 'purple')
+)
 
 # 4.4: Line charts
 
 # 4.4.1: Confirmed Cases
+total_cases_linechart <- htmlDiv('Total Confirmed Cases line chart',
+                                  style=list('color' = 'white',
+                                             'background-color' = 'green')
+                                 )
 
 # 4.4.2: Deaths
+total_death_linechart <- htmlDiv('Total deaths line chart',
+                                 style=list('color' = 'white',
+                                            'background-color' = 'brown')
+)
 
 # 4.4.3: Recoveries
-
+total_recovered_linechart <- htmlDiv('Total recovered line chart',
+                                     style=list('color' = 'white',
+                                                'background-color' = 'blue')
+)
 # 4.5: Map
+world_map <- htmlDiv('World Map',
+                                style=list('color' = 'white',
+                                           'background-color' = 'purple')
+)
+
 
 # 4.6: Absolute Number / Per 1M
-
+data_mode_selection <- htmlDiv('Data Mode Selection',
+                                style=list('color' = 'white',
+                                           'background-color' = 'brown'))
 
 
 
 # 5: Skeleton of the server
 
-app <- Dash$new(external_stylesheets = "https://codepen.io/chriddyp/pen/bWLwgP.css")
+app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 
 app$layout(
-    htmlDiv(
-        list(
-            dccDropdown(
-                options = list(list(label = "New York City", value = "NYC"),
-                               list(label = "Montreal", value = "MTL"),
-                               list(label = "San Francisco", value = "SF")),
-                value = 'MTL'
+    dbcContainer(
+        list (
+            dbcRow(
+                list(
+                    dbcCol(
+                        list(
+                            selection_mode,
+                            blank_div,
+                            region_selection,
+                            country_selection,
+                            date_range_selection,
+                            data_mode_selection
+                        )
+                    ),
+                    dbcCol(
+                        world_map
+                    )
+                ),
+            ),
+            dbcRow(
+                list(
+                    dbcCol(
+                            total_cases_linechart
+                    ),
+                    dbcCol(
+                        total_death_linechart
+                    ),
+                    dbcCol(
+                        total_recovered_linechart
+                    )
+                )
             )
         )
     )
