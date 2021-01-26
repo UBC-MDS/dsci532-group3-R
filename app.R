@@ -7,15 +7,52 @@ library(tidyverse)
 
 # 1: Functions
 
-# 1.1: Function to do the filtering
+# 1.1: Function to plot the charts
+plot_chart <- function() {
+    ''
+}
 
-# 1.2: Function to plot the charts
+# 1.2: Function to generate the map
+plot_map <- function() {
+    ''
+}
 
-# 1.3: Function to generate the map
+# 1.3 Function to load data
+load_daily_data <- function() {
+    daily_data <- read_csv("data/raw/full_grouped.csv")
+    
+    daily_data <- daily_data %>%
+        rename(country_region = "Country/Region",
+               new_cases = "New cases",
+               new_deaths = "New deaths",
+               new_recovered = "New recovered",
+               who_region = "WHO Region",
+               date = "Date",
+               confirmed = "Confirmed",
+               deaths = "Deaths",
+               recovered = "Recovered",
+               active = "Active")
+    
+    daily_data$country_region <- daily_data$country_region %>%
+        as.factor()
+    
+    daily_data$who_region <- daily_data$who_region %>%
+        as.factor()
+    
+    daily_data
+}
 
-# 1.4: Function to hide / show selection mode
+load_population_data <- function() {
+    population_data <- read_csv("data/processed/worldometer_data.csv") %>%
+        rename(country_region = "Country/Region",
+               population = "Population")
+    
+    population_data$country_region <- population_data$country_region %>%
+        as.factor()
+    
+    population_data
+}
 
-# 1.5: Load country code data
 load_country_code <- function() {
     country_code_data <- read_csv("data/country_location.csv")
     
@@ -32,44 +69,14 @@ load_country_code <- function() {
 # 1.6: Other supporting functions
 
 
-# 2: Read data
+# 2: Load from the file
 
-# 2.1: Load from the file
-daily_data <- read_csv("data/raw/full_grouped.csv")
-# head(daily_data)
-
-population_data <- read_csv("data/processed/worldometer_data.csv")
+daily_data <- load_daily_data()
+# print(head(daily_data))
+population_data <- load_population_data()
 # print(head(population_data))
-
 country_code_data <- load_country_code()
 # print(head(country_code_data))
-
-# 2.2: Rename columns
-daily_data <- daily_data %>%
-    rename(country_region = "Country/Region",
-           new_cases = "New cases",
-           new_deaths = "New deaths",
-           new_recovered = "New recovered",
-           who_region = "WHO Region",
-           date = "Date",
-           confirmed = "Confirmed",
-           deaths = "Deaths",
-           recovered = "Recovered",
-           active = "Active")
-
-population_data <- population_data %>%
-    rename(country_region = "Country/Region",
-           population = "Population")
-
-# 2.3 Convert `Country/Region` and `WHO Region` to factors
-daily_data$country_region <- daily_data$country_region %>%
-    as.factor()
-
-daily_data$who_region <- daily_data$who_region %>%
-    as.factor()
-
-population_data$country_region <- population_data$country_region %>%
-    as.factor()
 
 # 3: Data wrangling
 
@@ -90,7 +97,7 @@ region_daywise_df <- country_daywise_df %>%
               new_recovered = mean(new_recovered)) %>%
     ungroup() %>%
     mutate(country_region = who_region)
-    
+
 # print(head(region_daywise_df))
 
 world_daywise_df <- country_daywise_df %>%
@@ -124,61 +131,106 @@ print(regions)
 # 4.1: Declare options for Selection Mode / Data Mode as factors
 
 # 4.2: Selection mode (World, Regions, Countries)
-selection_mode <- htmlH3('Selection_Mode',
-                         style=list('color' = 'cyan', 'background-color' = '#000000')
+selection_mode <- htmlH3(
+    'Selection_Mode',
+    id = 'selection_mode',
+    style = list(
+        'color' = 'cyan',
+        'background-color' = '#000000'
+        )
 )
 # 4.2.1: Empty Div for World
-blank_div <- htmlDiv('Blank Div',
-                     style=list('color' = 'white', 'background-color' = 'red')
+blank_div <- htmlDiv(
+    'Blank Div',
+    id = 'blank_div',
+    style = list(
+        'color' = 'white',
+        'background-color' = 'red'
+        )
 )
 
 # 4.2.2: Dropdown list for Regions
-region_selection <- htmlDiv('Region Selection',
-                     style=list('color' = 'white', 'background-color' = 'blue')
+region_selection <- htmlDiv(
+    'Region Selection',
+    id = 'region_selection',
+    style = list(
+        'color' = 'white',
+        'background-color' = 'blue'
+        )
 )
 
 # 4.2.3: Drop down list for Countries
-country_selection <- htmlDiv('Country Selection',
-                             style=list('color' = 'white',
-                                        'background-color' = 'green')
+country_selection <- htmlDiv(
+    'Country Selection',
+    id = 'country_selection',
+    style=list(
+        'color' = 'white',
+        'background-color' = 'green'
+        )
 )
 
 # 4.3: Date Range Picker
-date_range_selection <- htmlDiv('Date Range Selection',
-                             style=list('color' = 'white',
-                                        'background-color' = 'purple')
+date_range_selection <- htmlDiv(
+    'Date Range Selection',
+    id = 'date_range_selection',
+    style = list(
+        'color' = 'white',
+        'background-color' = 'purple'
+        )
 )
 
 # 4.4: Line charts
 
 # 4.4.1: Confirmed Cases
-total_cases_linechart <- htmlDiv('Total Confirmed Cases line chart',
-                                  style=list('color' = 'white',
-                                             'background-color' = 'green')
-                                 )
+total_cases_linechart <- htmlDiv(
+    'Total Confirmed Cases line chart',
+    id = 'line_totalcases',
+    style = list(
+        'color' = 'white',
+        'background-color' = 'green'
+        )
+)
 
 # 4.4.2: Deaths
-total_death_linechart <- htmlDiv('Total deaths line chart',
-                                 style=list('color' = 'white',
-                                            'background-color' = 'brown')
+total_death_linechart <- htmlDiv(
+    'Total deaths line chart',
+    id = 'line_totaldeaths',
+    style = list(
+        'color' = 'white',
+        'background-color' = 'brown'
+        )
 )
 
 # 4.4.3: Recoveries
-total_recovered_linechart <- htmlDiv('Total recovered line chart',
-                                     style=list('color' = 'white',
-                                                'background-color' = 'blue')
+total_recovered_linechart <- htmlDiv(
+    'Total recovered line chart',
+    id = 'line_totalrecovered',
+    style=list(
+        'color' = 'white',
+        'background-color' = 'blue'
+        )
 )
 # 4.5: Map
-world_map <- htmlDiv('World Map',
-                                style=list('color' = 'white',
-                                           'background-color' = 'purple')
+world_map <- htmlDiv(
+    'World Map',
+    id = 'world_map',
+    style = list(
+        'color' = 'white',
+        'background-color' = 'purple'
+        )
 )
 
 
 # 4.6: Absolute Number / Per 1M
-data_mode_selection <- htmlDiv('Data Mode Selection',
-                                style=list('color' = 'white',
-                                           'background-color' = 'brown'))
+data_mode_selection <- htmlDiv(
+    'Data Mode Selection',
+    id = 'data_mode_selection',
+    style=list(
+        'color' = 'white',
+        'background-color' = 'brown'
+        )
+)
+
 
 
 
@@ -222,5 +274,106 @@ app$layout(
         )
     )
 )
+
+# Output('line_totalcases', 'srcDoc'),
+# Output('line_totaldeaths', 'srcDoc'),
+# Output('line_totalrecovered', 'srcDoc'),
+# Output('world_map', 'figure'),
+# Input('region_selection', 'value'),
+# Input('country_filter', 'value'),
+# Input('continent_filter', 'value'),
+# Input('date_selection_range', 'start_date'),
+# Input('date_selection_range', 'end_date'),
+# Input('select_options', 'value'))
+
+app$callback(
+    list(
+        output('line_totalcases', 'children'),
+        output('line_totaldeaths', 'children'),
+        output('line_totalrecovered', 'children'),
+        output('world_map', 'children')
+        # output('line_totalcases', 'srcDoc'),
+        # output('line_totaldeaths', 'srcDoc'),
+        # output('line_totalrecovered', 'srcDoc'),
+        # output('world_map', 'figure')
+    ),
+    list(
+        input('selection_mode', 'children'),
+        input('region_selection', 'children'),
+        input('country_selection', 'children'),
+        input('date_range_selection', 'children'),
+        input('data_mode_selection', 'children')
+        # input('selection_mode', 'value'),
+        # input('region_selection', 'value'),
+        # input('country_selection', 'value'),
+        # input('date_range_selection', 'value'),
+        # input('data_mode_selection', 'value')
+        ),
+    function(selection_mode, region, country, start_date, end_date, data_mode) {
+        # Start filtering data
+        # temporarily fake data. When implement please remove the fake data
+        SELECTION_WORLD = 1
+        SELECTION_REGION = 2
+        SELECTION_COUNTRY = 3
+        selection_mode = SELECTION_WORLD
+        
+        DATA_ABSOLUTE = 1
+        DATA_PER1M = 2
+        data_mode = DATA_ABSOLUTE
+        
+        start_date = '2020-01-27'
+        end_date = '2020-07-27'
+        
+        chart_data <- world_daywise_df
+        map_data <- country_daywise_df
+        
+        if (selection_mode == SELECTION_REGION) {
+            chart_data <- region_daywise_df %>%
+                filter(who_region %in% region)
+            
+            map_data <- map_data %>%
+                filter(who_region %in% region)
+        } else if (selection_mode == SELECTION_COUNTRY) {
+            chart_data <- country_daywise_df %>%
+                filter(country_region %in% country)
+            map_data <- chart_data
+        }
+        
+        chart_data <- chart_data %>%
+            filter(date >= start_date, date <= end_date)
+        
+        map_data <- map_data %>%
+            filter(date >= start_date, date <= end_date)        
+
+        if (data_mode == DATA_PER1M) {
+            # TODO: divide by Population. Then multiply by 1M
+        }
+        # End filtering data
+        
+        # Start Plot 3 charts
+        # TODO: Write a function to load 3 charts
+        line_totalcases <- plot_chart('Total Confirmed Cases line chart')
+        line_totaldeaths <- plot_chart('Total deaths line chart')
+        line_totalrecovered <- plot_chart('Total recovered line chart')
+        
+        # End Plot 3 charts
+        
+        # Start world map
+        # TODO: Write a function to load the world map
+        world_map <- 'World map'
+        
+        
+        # End world map
+        
+        list(line_totalcases, line_totaldeaths, line_totalrecovered)
+    }
+)
+
+# Function to hide / show selection mode
+# Will do after finishing above functions
+
+# Function for loading screen
+# Will do after finishing above functions
+
 
 app$run_server(debug = T)
