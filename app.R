@@ -68,7 +68,6 @@ load_country_code <- function() {
 
 # 1.6: Other supporting functions
 
-
 # 2: Load from the file
 
 daily_data <- load_daily_data()
@@ -132,13 +131,18 @@ print(regions)
 
 # 4.2: Selection mode (World, Regions, Countries)
 selection_mode <- htmlH3(
-    'Selection_Mode',
-    id = 'selection_mode',
-    style = list(
-        'color' = 'cyan',
-        'background-color' = '#000000'
-        )
+    list(
+    htmlLabel('Selection Mode'),
+    dccRadioItems(
+        id = 'selection_mode',
+        options=list(list('label' = 'World', 'value' = 'World'),
+                     list('label' = 'Regions', 'value' = 'Regions'),
+                     list('label' = 'Countries', 'value' = 'Countries')),
+        value='World',
+        labelStyle=list('display' = 'inline-block'))  
+    )
 )
+
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
     'Blank Div',
@@ -151,12 +155,20 @@ blank_div <- htmlDiv(
 
 # 4.2.2: Dropdown list for Regions
 region_selection <- htmlDiv(
-    'Region Selection',
-    id = 'region_selection',
-    style = list(
-        'color' = 'white',
-        'background-color' = 'blue'
-        )
+    list(
+        htmlLabel('Region Selection'),
+        dccDropdown(
+            id = 'region_selection',
+            options = list(
+                list('label'= 'Africa', 'value'= 'Africa'),
+                list('label'= 'Americas', 'value'= 'Americas'),
+                list('label'= 'Eastern Mediterranean', 'value'= 'Eastern Mediterranean'),
+                list('label'= 'Europe', 'value'= 'Europe'),
+                list('label'= 'South-East Asia', 'value'= 'South-East Asia'),
+                list('label'= 'Western Pacific', 'value'= 'Western Pacific')),
+            placeholder="Africa"
+        )  
+    )
 )
 
 # 4.2.3: Drop down list for Countries
@@ -223,15 +235,18 @@ world_map <- htmlDiv(
 
 # 4.6: Absolute Number / Per 1M
 data_mode_selection <- htmlDiv(
-    'Data Mode Selection',
-    id = 'data_mode_selection',
-    style=list(
-        'color' = 'white',
-        'background-color' = 'brown'
+    list(
+        htmlLabel('Display Data'),
+        dccRadioItems(
+            id = 'data_mode_selection',
+            options=list(list('label' = 'Absolute', 'value' = 'Absolute'),
+                list('label' = 'Per Capita', 'value' = 'Per Capita')),
+            value='Absolute',
+            labelStyle=list('margin-right' = '25px'),
+            inputStyle=list('margin-right'= '5px')
+        )  
         )
 )
-
-
 
 
 # 5: Skeleton of the server
@@ -284,7 +299,7 @@ app$layout(
 # Input('continent_filter', 'value'),
 # Input('date_selection_range', 'start_date'),
 # Input('date_selection_range', 'end_date'),
-# Input('select_options', 'value'))
+# Input('select_options', 'value')
 
 app$callback(
     list(
@@ -302,12 +317,12 @@ app$callback(
         input('region_selection', 'children'),
         input('country_selection', 'children'),
         input('date_range_selection', 'children'),
-        input('data_mode_selection', 'children')
-        # input('selection_mode', 'value'),
+        input('data_mode_selection', 'children'),
+        input('selection_mode', 'value'),
         # input('region_selection', 'value'),
         # input('country_selection', 'value'),
         # input('date_range_selection', 'value'),
-        # input('data_mode_selection', 'value')
+        input('data_mode_selection', 'value')
         ),
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         # Start filtering data
