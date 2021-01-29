@@ -4,6 +4,7 @@ library(dashHtmlComponents)
 library(dashBootstrapComponents)
 
 library(tidyverse)
+library(stringr)
 
 # 1: Functions
 
@@ -111,9 +112,24 @@ country_code_data <- load_country_code()
 # 3.1: Join
 country_daywise_df <- left_join(daily_data, population_data)
 country_daywise_df <- left_join(country_daywise_df, country_code_data)
+
+country_daywise_df <- country_daywise_df %>%
+    mutate(country_region = str_replace(country_region, 'Timor-Leste', 'East Timor')) %>%
+    mutate(country_region = str_replace(country_region, 'Congo (Kinshasa)', 'Republic of the Congo')) %>% 
+    mutate(country_region = str_replace(country_region, 'Cote d\'Ivoire', 'Ivory Coast')) %>%
+    mutate(country_region = str_replace(country_region, 'North Macedonia', 'Macedonia')) %>%
+    mutate(country_region = str_replace(country_region, 'Burma','Myanmar')) %>%
+    mutate(country_region = str_replace(country_region, 'Serbia','Republic of Serbia')) %>%
+    mutate(country_region = str_replace(country_region, '\\*', '')) %>%
+    mutate(country_region = str_replace(country_region, 'Bahamas', 'The Bahamas')) %>%
+    mutate(country_region = str_replace(country_region, 'Tanzania','United Republic of Tanzania')) %>%
+    mutate(country_region = str_replace(country_region, 'US','United States of America')) %>%
+    drop_na()
+
 print(head(country_daywise_df))
 
 # 3.2: Aggregate into world / regions 
+
 region_daywise_df <- country_daywise_df %>%
     group_by(date, who_region) %>%
     summarize(confirmed = mean(confirmed),
@@ -122,7 +138,7 @@ region_daywise_df <- country_daywise_df %>%
               active = mean(active),
               new_cases = mean(new_cases),
               new_deaths = mean(new_deaths),
-              new_recovered = mean(new_recovered)) %>%
+              population = sum(population)) %>%
     ungroup() %>%
     mutate(country_region = who_region)
 
@@ -136,7 +152,8 @@ world_daywise_df <- country_daywise_df %>%
               active = mean(active),
               new_cases = mean(new_cases),
               new_deaths = mean(new_deaths),
-              new_recovered = mean(new_recovered)) %>%
+              new_recovered = mean(new_recovered),
+              population = sum(population)) %>%
     ungroup() %>%
     mutate(country_region = "World")
 
@@ -164,10 +181,10 @@ selection_mode <- htmlH3(
     htmlLabel('Selection Mode'),
     dccRadioItems(
         id = 'selection_mode',
-        options=list(list('label' = 'World', 'value' = 'World'),
-                     list('label' = 'Regions', 'value' = 'Regions'),
-                     list('label' = 'Countries', 'value' = 'Countries')),
-        value='World',
+        options=list(list('label' = 'World', 'value' = 1),
+                     list('label' = 'Regions', 'value' = 2),
+                     list('label' = 'Countries', 'value' = 3)),
+        value=1,
         labelStyle=list('margin-right' = '25px'),
         inputStyle=list('margin-right'= '5px'))  
     )
@@ -273,9 +290,9 @@ data_mode_selection <- htmlDiv(
         htmlLabel('Display Data'),
         dccRadioItems(
             id = 'data_mode_selection',
-            options=list(list('label' = 'Absolute', 'value' = 'Absolute'),
-                list('label' = 'Per Capita', 'value' = 'Per Capita')),
-            value='Absolute',
+            options=list(list('label' = 'Absolute', 'value' = 1),
+                list('label' = 'Per Capita', 'value' = 2)),
+            value=1,
             labelStyle=list('margin-right' = '25px'),
             inputStyle=list('margin-right'= '5px')
         )  
@@ -329,7 +346,7 @@ app$callback(
         output('output-container-date-picker-range', 'children'),
         output('line_totalcases', 'figure'),
         output('line_totaldeaths', 'figure'),
-        output('line_totalrecovered', 'children'),
+        output('line_totalrecovered', 'figure'),
         output('world_map', 'children')
         # output('line_totalcases', 'srcDoc'),
         # output('line_totaldeaths', 'srcDoc'),
@@ -382,6 +399,12 @@ app$callback(
 
         if (data_mode == DATA_PER1M) {
             # TODO: divide by Population. Then multiply by 1M
+            chart_data <- chart_data %>%
+                mutate(confirmed = (confirmed/population)*1000000) %>%
+                mutate(deaths = (deaths/population)*1000000) %>%
+                mutate(recovered = (recovered/population)*1000000)
+            map_data <- chart_data
+                
         }
         
         # End filtering data
