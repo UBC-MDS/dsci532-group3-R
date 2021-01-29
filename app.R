@@ -174,7 +174,7 @@ selection_mode <- htmlH3(
 
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
-    'Blank Div',
+    # 'Blank Div',
     id = 'blank_div',
     style = list(
         'color' = 'white',
@@ -185,7 +185,7 @@ blank_div <- htmlDiv(
 # 4.2.2: Dropdown list for Regions
 region_selection <- htmlDiv(
     list(
-        htmlLabel('Region Selection'),
+        # htmlLabel('Region Selection'),
         dccDropdown(
             id = 'region_selection',
             options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
@@ -198,7 +198,7 @@ region_selection <- htmlDiv(
 # 4.2.3: Drop down list for Countries
 country_selection <- htmlDiv(
     list(
-        htmlLabel('Country Selection'),
+        # htmlLabel('Country Selection'),
         dccDropdown(
             id = 'country_selection',
             options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
@@ -236,25 +236,6 @@ total_death_linechart <- list(dccGraph(id = 'line_totaldeaths'))
 # 4.4.3: Recoveries
 total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
 
-# 4.4.2: Deaths
-#total_death_linechart <- htmlDiv(
-#    'Total deaths line chart',
-#    id = 'line_totaldeaths',
-#    style = list(
-#        'color' = 'white',
-#        'background-color' = 'brown'
-#        )
-#)
-
-# 4.4.3: Recoveries
-#total_recovered_linechart <- htmlDiv(
-#    'Total recovered line chart',
-#    id = 'line_totalrecovered',
-#    style=list(
-#        'color' = 'white',
-#        'background-color' = 'blue'
-#        )
-#)
 # 4.5: Map
 world_map <- htmlDiv(
     'World Map',
@@ -338,7 +319,7 @@ app$callback(
         input('date_range_selection', 'start_date'),
         input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value')
-        ),
+    ),
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         print("callback function")
         # Start filtering data
@@ -346,7 +327,7 @@ app$callback(
         SELECTION_WORLD = 1
         SELECTION_REGION = 2
         SELECTION_COUNTRY = 3
-        selection_mode = SELECTION_WORLD
+        # selection_mode = SELECTION_WORLD
         
         DATA_ABSOLUTE = 1
         DATA_PER1M = 2
@@ -406,8 +387,43 @@ app$callback(
     }
 )
 
-# Function to hide / show selection mode
-# Will do after finishing above functions
+app$callback(
+    list(
+        output('blank_div', 'style'),
+        output('region_selection', 'style'),
+        output('country_selection', 'style')
+    ),
+    list(
+        input('selection_mode', 'value')
+    ),
+    function(selection_mode) {
+        print("Hide/Show selection,")
+        print(selection_mode)
+        print(typeof(selection_mode))
+        SELECTION_WORLD = 1L
+        SELECTION_REGION = 2L
+        SELECTION_COUNTRY = 3L
+        print(typeof(SELECTION_REGION))
+        
+        world_style = list('height' = '35px')
+        region_style = list('display' = 'none')
+        country_style = list('display'= 'none')
+
+        print("before")
+        if (selection_mode == SELECTION_REGION){
+            print('Region mode')
+            world_style = list('display' = 'none')
+            region_style = list('display' = 'block')
+        }
+        else if (selection_mode == SELECTION_COUNTRY){
+            print('Country mode')
+            world_style = list('display' = 'none')
+            country_style = list('display' = 'block')
+        }
+        
+        list(world_style, region_style, country_style)
+    }
+)
 
 # Function for loading screen
 # Will do after finishing above functions
