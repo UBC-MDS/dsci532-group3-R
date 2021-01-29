@@ -161,7 +161,8 @@ region_selection <- htmlDiv(
         dccDropdown(
             id = 'region_selection',
             options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
-            placeholder="Africa"
+            placeholder="Africa",
+            multi = TRUE
         )  
     )
 )
@@ -173,7 +174,8 @@ country_selection <- htmlDiv(
         dccDropdown(
             id = 'country_selection',
             options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
-            placeholder="Afghanistan"
+            placeholder="Afghanistan",
+            multi = TRUE
         )  
     )
 )
@@ -189,7 +191,7 @@ date_range_selection <- htmlDiv(
             initial_visible_month=as.Date('2020-01-01'),
             end_date = as.Date('2020-07-31')
         ),
-    htmlDiv(id='output-container-date-picker-range'),
+    htmlDiv(id='output-container-date-picker-range')
     )
 )
 
@@ -296,12 +298,12 @@ app$layout(
 # Output('line_totaldeaths', 'srcDoc'),
 # Output('line_totalrecovered', 'srcDoc'),
 # Output('world_map', 'figure'),
-Input('region_selection', 'value'),
-Input('country_filter', 'value'),
-Input('continent_filter', 'value'),
-Input('date_selection_range', 'start_date'),
-Input('date_selection_range', 'end_date'),
-Input('select_options', 'value')
+# Input('region_selection', 'value'),
+# Input('country_filter', 'value'),
+# Input('continent_filter', 'value'),
+# Input('date_selection_range', 'start_date'),
+# Input('date_selection_range', 'end_date'),
+# Input('select_options', 'value')
 
 app$callback(
     list(
