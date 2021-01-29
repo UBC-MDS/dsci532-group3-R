@@ -5,40 +5,22 @@ library(dashBootstrapComponents)
 
 library(tidyverse)
 library(stringr)
+library(plotly)
 
 # 1: Functions
 
 
 # 1.1: Function to plot the charts
 
-plot_chart <- function(out) {
-    confirmed <- ggplot(chart_data) +
+plot_chart <- function(chart_data, col) {
+    chart <- ggplot(chart_data) +
         aes(x = date,
-            y = confirmed) +
+            y = {{col}}) +
         geom_line() 
         
     
-    ggplotly(confirmed, width = 600)
+    ggplotly(chart, width = 600)
 }
-
-plot_chart_deaths <- function() {
-    deaths <- ggplot(chart_data) +
-        aes(x = date,
-            y = deaths) +
-        geom_line() 
-    
-    ggplotly(deaths, width = 600)
-}
-
-plot_chart_recovered <- function() {
-    recovered <- ggplot(chart_data) +
-        aes(x = date,
-            y = recovered) +
-        geom_line() 
-    
-    ggplotly(recovered, width = 600)
-}
-
 
 
 
@@ -327,13 +309,13 @@ app$layout(
             dbcRow(
                 list(
                     dbcCol(
-                            total_cases_linechart
+                        total_cases_linechart, width = 4
                     ),
                     dbcCol(
-                        total_death_linechart
+                        total_death_linechart, width = 4
                     ),
                     dbcCol(
-                        total_recovered_linechart
+                        total_recovered_linechart, width = 4
                     )
                 )
             )
@@ -343,15 +325,11 @@ app$layout(
 
 app$callback(
     list(
-        output('output-container-date-picker-range', 'children'),
+        # output('output-container-date-picker-range', 'children'),
         output('line_totalcases', 'figure'),
         output('line_totaldeaths', 'figure'),
         output('line_totalrecovered', 'figure'),
         output('world_map', 'children')
-        # output('line_totalcases', 'srcDoc'),
-        # output('line_totaldeaths', 'srcDoc'),
-        # output('line_totalrecovered', 'srcDoc'),
-        # output('world_map', 'figure')
     ),
     list(
         input('selection_mode', 'value'),
@@ -362,6 +340,7 @@ app$callback(
         input('data_mode_selection', 'value')
         ),
     function(selection_mode, region, country, start_date, end_date, data_mode) {
+        print("callback function")
         # Start filtering data
         # temporarily fake data. When implement please remove the fake data
         SELECTION_WORLD = 1
@@ -410,13 +389,9 @@ app$callback(
         # End filtering data
         
         # Start Plot 3 charts
-        # TODO: Write a function to load 3 charts
-        line_totalcases <- plot_chart(out)
-        line_totaldeaths <- plot_chart_deaths()
-        line_totalrecovered <- plot_chart_recovered()
-        
-        #line_totaldeaths <- plot_chart('Total deaths line chart')
-        #line_totalrecovered <- plot_chart('Total recovered line chart')
+        line_totalcases <- plot_chart(chart_data, confirmed)
+        line_totaldeaths <- plot_chart(chart_data, deaths)
+        line_totalrecovered <- plot_chart(chart_data, recovered)
         
         # End Plot 3 charts
         
@@ -424,10 +399,10 @@ app$callback(
         # TODO: Write a function to load the world map
         world_map <- 'World map'
         
-        
+        print(chart_data)
         # End world map
         
-        list(line_totalcases, line_totaldeaths, line_totalrecovered)
+        list(line_totalcases, line_totaldeaths, line_totalrecovered, '')
     }
 )
 
