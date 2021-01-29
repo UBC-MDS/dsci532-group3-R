@@ -382,4 +382,4 @@ app$callback(
 # Will do after finishing above functions
 
 
-app$run_server(debug = T)
+app$run_server(host = '0.0.0.0')
