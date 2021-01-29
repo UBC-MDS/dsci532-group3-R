@@ -403,6 +403,7 @@ app$callback(
                 mutate(confirmed = (confirmed/population)*1000000) %>%
                 mutate(deaths = (deaths/population)*1000000) %>%
                 mutate(recovered = (recovered/population)*1000000)
+            map_data <- chart_data
                 
         }
         
