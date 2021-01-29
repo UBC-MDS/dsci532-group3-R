@@ -186,10 +186,11 @@ date_range_selection <- htmlDiv(
         htmlLabel('Date Range Selection'),
         dccDatePickerRange(
             id='date_range_selection',
-            min_date_allowed=as.Date('2020-01-01'),
-            max_date_allowed=as.Date('2020-07-31'),
+            min_date_allowed=as.Date('2020-01-22'),
+            max_date_allowed=as.Date('2020-07-27'),
             initial_visible_month=as.Date('2020-01-01'),
-            end_date = as.Date('2020-07-31')
+            start_date = as.Date('2020-01-22'),
+            end_date = as.Date('2020-07-27')
         ),
     htmlDiv(id='output-container-date-picker-range')
     )
@@ -294,17 +295,6 @@ app$layout(
     )
 )
 
-# Output('line_totalcases', 'srcDoc'),
-# Output('line_totaldeaths', 'srcDoc'),
-# Output('line_totalrecovered', 'srcDoc'),
-# Output('world_map', 'figure'),
-# Input('region_selection', 'value'),
-# Input('country_filter', 'value'),
-# Input('continent_filter', 'value'),
-# Input('date_selection_range', 'start_date'),
-# Input('date_selection_range', 'end_date'),
-# Input('select_options', 'value')
-
 app$callback(
     list(
         output('output-container-date-picker-range', 'children'),
@@ -318,17 +308,11 @@ app$callback(
         # output('world_map', 'figure')
     ),
     list(
-        input(id = 'date_range_selection', property = 'start_date'),
-        input(id = 'date_range_selection', property = 'end_date'),
-        input('selection_mode', 'children'),
-        input('region_selection', 'children'),
-        input('country_selection', 'children'),
-        input('date_range_selection', 'children'),
-        input('data_mode_selection', 'children'),
         input('selection_mode', 'value'),
         input('region_selection', 'value'),
         input('country_selection', 'value'),
-        input('date_range_selection', 'value'),
+        input('date_range_selection', 'start_date'),
+        input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value')
         ),
     function(selection_mode, region, country, start_date, end_date, data_mode) {
