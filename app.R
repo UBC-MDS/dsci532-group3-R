@@ -139,7 +139,8 @@ selection_mode <- htmlH3(
                      list('label' = 'Regions', 'value' = 'Regions'),
                      list('label' = 'Countries', 'value' = 'Countries')),
         value='World',
-        labelStyle=list('display' = 'inline-block'))  
+        labelStyle=list('margin-right' = '25px'),
+        inputStyle=list('margin-right'= '5px'))  
     )
 )
 
@@ -159,13 +160,7 @@ region_selection <- htmlDiv(
         htmlLabel('Region Selection'),
         dccDropdown(
             id = 'region_selection',
-            options = list(
-                list('label'= 'Africa', 'value'= 'Africa'),
-                list('label'= 'Americas', 'value'= 'Americas'),
-                list('label'= 'Eastern Mediterranean', 'value'= 'Eastern Mediterranean'),
-                list('label'= 'Europe', 'value'= 'Europe'),
-                list('label'= 'South-East Asia', 'value'= 'South-East Asia'),
-                list('label'= 'Western Pacific', 'value'= 'Western Pacific')),
+            options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
             placeholder="Africa"
         )  
     )
@@ -173,22 +168,29 @@ region_selection <- htmlDiv(
 
 # 4.2.3: Drop down list for Countries
 country_selection <- htmlDiv(
-    'Country Selection',
-    id = 'country_selection',
-    style=list(
-        'color' = 'white',
-        'background-color' = 'green'
-        )
+    list(
+        htmlLabel('Country Selection'),
+        dccDropdown(
+            id = 'country_selection',
+            options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
+            placeholder="Afghanistan"
+        )  
+    )
 )
 
 # 4.3: Date Range Picker
 date_range_selection <- htmlDiv(
-    'Date Range Selection',
-    id = 'date_range_selection',
-    style = list(
-        'color' = 'white',
-        'background-color' = 'purple'
-        )
+    list(
+        htmlLabel('Date Range Selection'),
+        dccDatePickerRange(
+            id='date_range_selection',
+            min_date_allowed=as.Date('2020-01-01'),
+            max_date_allowed=as.Date('2020-07-31'),
+            initial_visible_month=as.Date('2020-01-01'),
+            end_date = as.Date('2020-07-31')
+        ),
+    htmlDiv(id='output-container-date-picker-range'),
+    )
 )
 
 # 4.4: Line charts
@@ -294,15 +296,16 @@ app$layout(
 # Output('line_totaldeaths', 'srcDoc'),
 # Output('line_totalrecovered', 'srcDoc'),
 # Output('world_map', 'figure'),
-# Input('region_selection', 'value'),
-# Input('country_filter', 'value'),
-# Input('continent_filter', 'value'),
-# Input('date_selection_range', 'start_date'),
-# Input('date_selection_range', 'end_date'),
-# Input('select_options', 'value')
+Input('region_selection', 'value'),
+Input('country_filter', 'value'),
+Input('continent_filter', 'value'),
+Input('date_selection_range', 'start_date'),
+Input('date_selection_range', 'end_date'),
+Input('select_options', 'value')
 
 app$callback(
     list(
+        output('output-container-date-picker-range', 'children'),
         output('line_totalcases', 'children'),
         output('line_totaldeaths', 'children'),
         output('line_totalrecovered', 'children'),
@@ -313,15 +316,17 @@ app$callback(
         # output('world_map', 'figure')
     ),
     list(
+        input(id = 'date_range_selection', property = 'start_date'),
+        input(id = 'date_range_selection', property = 'end_date'),
         input('selection_mode', 'children'),
         input('region_selection', 'children'),
         input('country_selection', 'children'),
         input('date_range_selection', 'children'),
         input('data_mode_selection', 'children'),
         input('selection_mode', 'value'),
-        # input('region_selection', 'value'),
-        # input('country_selection', 'value'),
-        # input('date_range_selection', 'value'),
+        input('region_selection', 'value'),
+        input('country_selection', 'value'),
+        input('date_range_selection', 'value'),
         input('data_mode_selection', 'value')
         ),
     function(selection_mode, region, country, start_date, end_date, data_mode) {
