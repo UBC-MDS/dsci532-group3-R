@@ -15,7 +15,8 @@ library(plotly)
 plot_chart <- function(chart_data, col) {
     chart <- ggplot(chart_data) +
         aes(x = date,
-            y = {{col}}) +
+            y = {{col}},
+            color = country_region) +
         geom_line() 
         
     
@@ -158,7 +159,7 @@ print(regions)
 # 4.1: Declare options for Selection Mode / Data Mode as factors
 
 # 4.2: Selection mode (World, Regions, Countries)
-selection_mode <- htmlH3(
+selection_mode <- htmlDiv(
     list(
     htmlLabel('Selection Mode'),
     dccRadioItems(
@@ -167,7 +168,7 @@ selection_mode <- htmlH3(
                      list('label' = 'Regions', 'value' = 2),
                      list('label' = 'Countries', 'value' = 3)),
         value=1,
-        labelStyle=list('margin-right' = '25px'),
+        labelStyle=list('margin-right' = '15px'),
         inputStyle=list('margin-right'= '5px'))  
     )
 )
@@ -259,7 +260,7 @@ data_mode_selection <- htmlDiv(
             labelStyle=list('margin-right' = '25px'),
             inputStyle=list('margin-right'= '5px')
         )  
-        )
+    )
 )
 
 
@@ -280,10 +281,12 @@ app$layout(
                             country_selection,
                             date_range_selection,
                             data_mode_selection
-                        )
+                        ),
+                        width = 4
                     ),
                     dbcCol(
-                        world_map
+                        world_map,
+                        width = 8
                     )
                 ),
             ),
