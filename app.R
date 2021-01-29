@@ -7,10 +7,39 @@ library(tidyverse)
 
 # 1: Functions
 
+
 # 1.1: Function to plot the charts
-plot_chart <- function() {
-    ''
+
+plot_chart <- function(out) {
+    confirmed <- ggplot(chart_data) +
+        aes(x = date,
+            y = confirmed) +
+        geom_line() 
+        
+    
+    ggplotly(confirmed, width = 600)
 }
+
+plot_chart_deaths <- function() {
+    deaths <- ggplot(chart_data) +
+        aes(x = date,
+            y = deaths) +
+        geom_line() 
+    
+    ggplotly(deaths, width = 600)
+}
+
+plot_chart_recovered <- function() {
+    recovered <- ggplot(chart_data) +
+        aes(x = date,
+            y = recovered) +
+        geom_line() 
+    
+    ggplotly(recovered, width = 600)
+}
+
+
+
 
 # 1.2: Function to generate the map
 plot_map <- function() {
@@ -199,34 +228,34 @@ date_range_selection <- htmlDiv(
 # 4.4: Line charts
 
 # 4.4.1: Confirmed Cases
-total_cases_linechart <- htmlDiv(
-    'Total Confirmed Cases line chart',
-    id = 'line_totalcases',
-    style = list(
-        'color' = 'white',
-        'background-color' = 'green'
-        )
-)
+total_cases_linechart <- list(dccGraph(id = 'line_totalcases'))
+
 
 # 4.4.2: Deaths
-total_death_linechart <- htmlDiv(
-    'Total deaths line chart',
-    id = 'line_totaldeaths',
-    style = list(
-        'color' = 'white',
-        'background-color' = 'brown'
-        )
-)
+total_death_linechart <- list(dccGraph(id = 'line_totaldeaths'))
 
 # 4.4.3: Recoveries
-total_recovered_linechart <- htmlDiv(
-    'Total recovered line chart',
-    id = 'line_totalrecovered',
-    style=list(
-        'color' = 'white',
-        'background-color' = 'blue'
-        )
-)
+total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
+
+# 4.4.2: Deaths
+#total_death_linechart <- htmlDiv(
+#    'Total deaths line chart',
+#    id = 'line_totaldeaths',
+#    style = list(
+#        'color' = 'white',
+#        'background-color' = 'brown'
+#        )
+#)
+
+# 4.4.3: Recoveries
+#total_recovered_linechart <- htmlDiv(
+#    'Total recovered line chart',
+#    id = 'line_totalrecovered',
+#    style=list(
+#        'color' = 'white',
+#        'background-color' = 'blue'
+#        )
+#)
 # 4.5: Map
 world_map <- htmlDiv(
     'World Map',
@@ -298,8 +327,8 @@ app$layout(
 app$callback(
     list(
         output('output-container-date-picker-range', 'children'),
-        output('line_totalcases', 'children'),
-        output('line_totaldeaths', 'children'),
+        output('line_totalcases', 'figure'),
+        output('line_totaldeaths', 'figure'),
         output('line_totalrecovered', 'children'),
         output('world_map', 'children')
         # output('line_totalcases', 'srcDoc'),
@@ -354,13 +383,17 @@ app$callback(
         if (data_mode == DATA_PER1M) {
             # TODO: divide by Population. Then multiply by 1M
         }
+        
         # End filtering data
         
         # Start Plot 3 charts
         # TODO: Write a function to load 3 charts
-        line_totalcases <- plot_chart('Total Confirmed Cases line chart')
-        line_totaldeaths <- plot_chart('Total deaths line chart')
-        line_totalrecovered <- plot_chart('Total recovered line chart')
+        line_totalcases <- plot_chart(out)
+        line_totaldeaths <- plot_chart_deaths()
+        line_totalrecovered <- plot_chart_recovered()
+        
+        #line_totaldeaths <- plot_chart('Total deaths line chart')
+        #line_totalrecovered <- plot_chart('Total recovered line chart')
         
         # End Plot 3 charts
         
