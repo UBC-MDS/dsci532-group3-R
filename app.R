@@ -54,7 +54,7 @@ plot_map <- function(map_data, title) {
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
-                   # locationmode='country names',
+                   # locationmode='country names,
                    colorscale = 'Portland',
                    # zmin = 0,
                    # zmax = 1000000,
@@ -64,7 +64,8 @@ plot_map <- function(map_data, title) {
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                   clickmode = 'event+select', autosize = FALSE, width = 650, height = 450)
+                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
+                   style = list(margin = list('right' = 0, 'top' = -50, 'left' = 0, 'bottom' = 0)))
 }
 
 # 1.3 Function to load data
@@ -224,7 +225,8 @@ region_selection <- htmlDiv(
             options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
             placeholder = "Select region",
             value = "Africa",
-            multi = TRUE
+            multi = TRUE,
+            style = list('display' = 'none')
         )  
     )
 )
@@ -238,7 +240,8 @@ country_selection <- htmlDiv(
             options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
             placeholder = "Select country",
             value="Afghanistan",
-            multi = TRUE
+            multi = TRUE,
+            style = list('display' = 'none')
         )  
     )
 )
@@ -420,6 +423,11 @@ app$callback(
                 mutate(recovered = (recovered/population)*1000000)
         }
         
+        
+        chart_data <- chart_data %>%
+            mutate(across(where(is.numeric), round, 2))
+        map_data <- map_data %>%
+            mutate(across(where(is.numeric), round, 0))
         # End filtering data
         
         # Start Plot 3 charts
@@ -478,12 +486,12 @@ app$callback(
         if (selection_mode == SELECTION_REGION){
             print('Region mode')
             world_style = list('display' = 'none')
-            region_style = list('display' = 'block')
+            region_style = list('display' = 'table', 'width' = '100%')
         }
         else if (selection_mode == SELECTION_COUNTRY){
             print('Country mode')
             world_style = list('display' = 'none')
-            country_style = list('display' = 'block')
+            country_style = list('display' = 'table', 'width' = '100%')
         }
         
         list(world_style, region_style, country_style)
