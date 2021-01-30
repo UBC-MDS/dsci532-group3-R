@@ -65,7 +65,7 @@ plot_map <- function(map_data, title) {
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
                    clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
-                   style = list(margin = list('right' = 0, 'top' = -50, 'left' = 0, 'bottom' = 0)))
+                   margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
 }
 
 # 1.3 Function to load data
