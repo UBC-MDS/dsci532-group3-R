@@ -28,11 +28,11 @@ plot_chart <- function(chart_data, col) {
 plot_map <- function(map_data) {
     map <- plot_ly(map_data, 
                    type='choropleth', 
-                   locations=~as.character(country_code), 
-                   locationmode='country names',
+                   locations=~as.character(code), 
+                   # locationmode='country names',
                    colorscale = 'Portland',
-                   zmin = 0,
-                   zmax = 1000000,
+                   # zmin = 0,
+                   # zmax = 1000000,
                    colorbar = list(title = 'Confirmed Cases', x = 1.0, y = 0.9),
                    z=~confirmed,
                    unselected = list(marker= list(opacity = 0.1)),
@@ -79,10 +79,10 @@ load_population_data <- function() {
 }
 
 load_country_code <- function() {
-    country_code_data <- read_csv("data/country_location.csv")
+    country_code_data <- read_csv("data/raw/2014_world_gdp_with_codes.csv")
     
-    country_code_data <- country_code_data %>%
-        rename(country_region = "country")# %>%
+    # country_code_data <- country_code_data %>%
+    #     rename(country_region = "country")# %>%
         # select(-country_code)
     
     country_code_data$country_region <- country_code_data$country_region %>%
@@ -337,9 +337,9 @@ app$callback(
         print("callback function")
         # Start filtering data
         # temporarily fake data. When implement please remove the fake data
-        SELECTION_WORLD = 1
-        SELECTION_REGION = 2
-        SELECTION_COUNTRY = 3
+        SELECTION_WORLD = 1L
+        SELECTION_REGION = 2L
+        SELECTION_COUNTRY = 3L
         # selection_mode = SELECTION_WORLD
         
         DATA_ABSOLUTE = 1
@@ -353,12 +353,16 @@ app$callback(
         map_data <- country_daywise_df
         
         if (selection_mode == SELECTION_REGION) {
+            print("Select region")
+            print(region)
+            print(typeof(region))
             chart_data <- region_daywise_df %>%
                 filter(who_region %in% region)
             
             map_data <- map_data %>%
                 filter(who_region %in% region)
         } else if (selection_mode == SELECTION_COUNTRY) {
+            print("Select country")
             chart_data <- country_daywise_df %>%
                 filter(country_region %in% country)
             map_data <- chart_data
@@ -391,15 +395,24 @@ app$callback(
         
         # Start world map
         # TODO: Write a function to load the world map
-        world_map <- 'World map'
+        map_data <- map_data %>%
+            group_by(country_region, code) %>%
+            summarize(confirmed = mean(confirmed),
+                      deaths = mean(deaths),
+                      recovered = mean(recovered),
+                      active = mean(active),
+                      new_cases = mean(new_cases),
+                      new_deaths = mean(new_deaths),
+                      new_recovered = mean(new_recovered),
+                      population = mean(population)) %>%
+            ungroup()
         
-        print(chart_data)
+        world_map <- plot_map(map_data)
+        
+        print(map_data)
         # End world map
         
-        list(line_totalcases,
-             line_totaldeaths,
-             line_totalrecovered,
-             plot_map(map_data))
+        list(line_totalcases, line_totaldeaths, line_totalrecovered, world_map)
     }
 )
 
