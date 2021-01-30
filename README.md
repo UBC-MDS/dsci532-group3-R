@@ -4,7 +4,7 @@ Team Members: Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, Heidi Ye
 
 Dataset: COVID-19 [Dataset](https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv)
 
-App: COVID-19 [Dashboard](https://covid-19-mds-532-group3.herokuapp.com/)
+App: COVID-19 [Dashboard](https://covid-19-mds-532-group3-r.herokuapp.com/)
 
 ## Welcome!
 Hello and welcome to our COVID-19 Dashboard - an interactive app that allows users to explore COVID-19 confirmed cases, deaths and recoveries around the world. 
@@ -13,7 +13,7 @@ As the pandemic continues into 2021, the intent of this app is to allow users to
 
 ### App Sketch
 
-Here's an outline of the initial concept behind this app. Some design changes have been made since this initial concept and is summarized [here.](doc/reflection-milestone2.md)   
+Here's an outline of the initial concept behind this app. Some design changes have been made since this initial concept and is summarized [here.](doc/reflection.md)   
 
 The landing page consists of a world heatmap which highlights regions that have been most and least impacted by the virus. Users can select the continent, country and date range they are interested in by using the respective dropdown menus and sliders. There is also a further option to specify if they are interested in absolute or per capita data through the radio buttons below. Once these fields are filled out, the bottom of the page will populate several plots with aggregated data that the user can explore in greater detail. The scroll bar will allow them to view up to six plots. 
 
@@ -32,10 +32,10 @@ We are always looking for feedback and contributors!
 In second milestone, the main comparison functionality of the "Region" tab was incorporated into landing page to limit the scope of having to build two tabs. Potential functionalities to add for the future include:
 
 - Ability to select countries on the map by clicking as a more intuitive alternative than typing in the country field
-- Exploring ways to speed up the page load time (loading widget currently implemented)
+- Improving the general aesthetics and design 
 
 You can run the app locally and contribute by:
 1. Forking this repo
-2. Downloading the environment in the `environment.yaml` file
-3. Adding your improvements to the `app.py` file in the `src` folder
+2. Downloading the `init.R` environment file
+3. Adding your improvements to the `app.R` file in the root of the repository
 
