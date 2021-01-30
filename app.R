@@ -4,40 +4,24 @@ library(dashHtmlComponents)
 library(dashBootstrapComponents)
 
 library(tidyverse)
+library(stringr)
+library(plotly)
 
 # 1: Functions
 
 
 # 1.1: Function to plot the charts
 
-plot_chart <- function(out) {
-    confirmed <- ggplot(chart_data) +
+plot_chart <- function(chart_data, col) {
+    chart <- ggplot(chart_data) +
         aes(x = date,
-            y = confirmed) +
+            y = {{col}},
+            color = country_region) +
         geom_line() 
         
     
-    ggplotly(confirmed, width = 600)
+    ggplotly(chart, width = 600)
 }
-
-plot_chart_deaths <- function() {
-    deaths <- ggplot(chart_data) +
-        aes(x = date,
-            y = deaths) +
-        geom_line() 
-    
-    ggplotly(deaths, width = 600)
-}
-
-plot_chart_recovered <- function() {
-    recovered <- ggplot(chart_data) +
-        aes(x = date,
-            y = recovered) +
-        geom_line() 
-    
-    ggplotly(recovered, width = 600)
-}
-
 
 
 
@@ -111,9 +95,24 @@ country_code_data <- load_country_code()
 # 3.1: Join
 country_daywise_df <- left_join(daily_data, population_data)
 country_daywise_df <- left_join(country_daywise_df, country_code_data)
+
+country_daywise_df <- country_daywise_df %>%
+    mutate(country_region = str_replace(country_region, 'Timor-Leste', 'East Timor')) %>%
+    mutate(country_region = str_replace(country_region, 'Congo (Kinshasa)', 'Republic of the Congo')) %>% 
+    mutate(country_region = str_replace(country_region, 'Cote d\'Ivoire', 'Ivory Coast')) %>%
+    mutate(country_region = str_replace(country_region, 'North Macedonia', 'Macedonia')) %>%
+    mutate(country_region = str_replace(country_region, 'Burma','Myanmar')) %>%
+    mutate(country_region = str_replace(country_region, 'Serbia','Republic of Serbia')) %>%
+    mutate(country_region = str_replace(country_region, '\\*', '')) %>%
+    mutate(country_region = str_replace(country_region, 'Bahamas', 'The Bahamas')) %>%
+    mutate(country_region = str_replace(country_region, 'Tanzania','United Republic of Tanzania')) %>%
+    mutate(country_region = str_replace(country_region, 'US','United States of America')) %>%
+    drop_na()
+
 print(head(country_daywise_df))
 
 # 3.2: Aggregate into world / regions 
+
 region_daywise_df <- country_daywise_df %>%
     group_by(date, who_region) %>%
     summarize(confirmed = mean(confirmed),
@@ -122,7 +121,7 @@ region_daywise_df <- country_daywise_df %>%
               active = mean(active),
               new_cases = mean(new_cases),
               new_deaths = mean(new_deaths),
-              new_recovered = mean(new_recovered)) %>%
+              population = sum(population)) %>%
     ungroup() %>%
     mutate(country_region = who_region)
 
@@ -136,7 +135,8 @@ world_daywise_df <- country_daywise_df %>%
               active = mean(active),
               new_cases = mean(new_cases),
               new_deaths = mean(new_deaths),
-              new_recovered = mean(new_recovered)) %>%
+              new_recovered = mean(new_recovered),
+              population = sum(population)) %>%
     ungroup() %>%
     mutate(country_region = "World")
 
@@ -159,23 +159,23 @@ print(regions)
 # 4.1: Declare options for Selection Mode / Data Mode as factors
 
 # 4.2: Selection mode (World, Regions, Countries)
-selection_mode <- htmlH3(
+selection_mode <- htmlDiv(
     list(
     htmlLabel('Selection Mode'),
     dccRadioItems(
         id = 'selection_mode',
-        options=list(list('label' = 'World', 'value' = 'World'),
-                     list('label' = 'Regions', 'value' = 'Regions'),
-                     list('label' = 'Countries', 'value' = 'Countries')),
-        value='World',
-        labelStyle=list('margin-right' = '25px'),
+        options=list(list('label' = 'World', 'value' = 1),
+                     list('label' = 'Regions', 'value' = 2),
+                     list('label' = 'Countries', 'value' = 3)),
+        value=1,
+        labelStyle=list('margin-right' = '15px'),
         inputStyle=list('margin-right'= '5px'))  
     )
 )
 
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
-    'Blank Div',
+    # 'Blank Div',
     id = 'blank_div',
     style = list(
         'color' = 'white',
@@ -186,7 +186,7 @@ blank_div <- htmlDiv(
 # 4.2.2: Dropdown list for Regions
 region_selection <- htmlDiv(
     list(
-        htmlLabel('Region Selection'),
+        # htmlLabel('Region Selection'),
         dccDropdown(
             id = 'region_selection',
             options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
@@ -199,7 +199,7 @@ region_selection <- htmlDiv(
 # 4.2.3: Drop down list for Countries
 country_selection <- htmlDiv(
     list(
-        htmlLabel('Country Selection'),
+        # htmlLabel('Country Selection'),
         dccDropdown(
             id = 'country_selection',
             options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
@@ -237,25 +237,6 @@ total_death_linechart <- list(dccGraph(id = 'line_totaldeaths'))
 # 4.4.3: Recoveries
 total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
 
-# 4.4.2: Deaths
-#total_death_linechart <- htmlDiv(
-#    'Total deaths line chart',
-#    id = 'line_totaldeaths',
-#    style = list(
-#        'color' = 'white',
-#        'background-color' = 'brown'
-#        )
-#)
-
-# 4.4.3: Recoveries
-#total_recovered_linechart <- htmlDiv(
-#    'Total recovered line chart',
-#    id = 'line_totalrecovered',
-#    style=list(
-#        'color' = 'white',
-#        'background-color' = 'blue'
-#        )
-#)
 # 4.5: Map
 world_map <- htmlDiv(
     'World Map',
@@ -273,13 +254,13 @@ data_mode_selection <- htmlDiv(
         htmlLabel('Display Data'),
         dccRadioItems(
             id = 'data_mode_selection',
-            options=list(list('label' = 'Absolute', 'value' = 'Absolute'),
-                list('label' = 'Per Capita', 'value' = 'Per Capita')),
-            value='Absolute',
+            options=list(list('label' = 'Absolute', 'value' = 1),
+                list('label' = 'Per Capita', 'value' = 2)),
+            value=1,
             labelStyle=list('margin-right' = '25px'),
             inputStyle=list('margin-right'= '5px')
         )  
-        )
+    )
 )
 
 
@@ -300,23 +281,25 @@ app$layout(
                             country_selection,
                             date_range_selection,
                             data_mode_selection
-                        )
+                        ),
+                        width = 4
                     ),
                     dbcCol(
-                        world_map
+                        world_map,
+                        width = 8
                     )
                 ),
             ),
             dbcRow(
                 list(
                     dbcCol(
-                            total_cases_linechart
+                        total_cases_linechart, width = 4
                     ),
                     dbcCol(
-                        total_death_linechart
+                        total_death_linechart, width = 4
                     ),
                     dbcCol(
-                        total_recovered_linechart
+                        total_recovered_linechart, width = 4
                     )
                 )
             )
@@ -326,15 +309,11 @@ app$layout(
 
 app$callback(
     list(
-        output('output-container-date-picker-range', 'children'),
+        # output('output-container-date-picker-range', 'children'),
         output('line_totalcases', 'figure'),
         output('line_totaldeaths', 'figure'),
-        output('line_totalrecovered', 'children'),
+        output('line_totalrecovered', 'figure'),
         output('world_map', 'children')
-        # output('line_totalcases', 'srcDoc'),
-        # output('line_totaldeaths', 'srcDoc'),
-        # output('line_totalrecovered', 'srcDoc'),
-        # output('world_map', 'figure')
     ),
     list(
         input('selection_mode', 'value'),
@@ -343,14 +322,15 @@ app$callback(
         input('date_range_selection', 'start_date'),
         input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value')
-        ),
+    ),
     function(selection_mode, region, country, start_date, end_date, data_mode) {
+        print("callback function")
         # Start filtering data
         # temporarily fake data. When implement please remove the fake data
         SELECTION_WORLD = 1
         SELECTION_REGION = 2
         SELECTION_COUNTRY = 3
-        selection_mode = SELECTION_WORLD
+        # selection_mode = SELECTION_WORLD
         
         DATA_ABSOLUTE = 1
         DATA_PER1M = 2
@@ -382,18 +362,20 @@ app$callback(
 
         if (data_mode == DATA_PER1M) {
             # TODO: divide by Population. Then multiply by 1M
+            chart_data <- chart_data %>%
+                mutate(confirmed = (confirmed/population)*1000000) %>%
+                mutate(deaths = (deaths/population)*1000000) %>%
+                mutate(recovered = (recovered/population)*1000000)
+            map_data <- chart_data
+                
         }
         
         # End filtering data
         
         # Start Plot 3 charts
-        # TODO: Write a function to load 3 charts
-        line_totalcases <- plot_chart(out)
-        line_totaldeaths <- plot_chart_deaths()
-        line_totalrecovered <- plot_chart_recovered()
-        
-        #line_totaldeaths <- plot_chart('Total deaths line chart')
-        #line_totalrecovered <- plot_chart('Total recovered line chart')
+        line_totalcases <- plot_chart(chart_data, confirmed)
+        line_totaldeaths <- plot_chart(chart_data, deaths)
+        line_totalrecovered <- plot_chart(chart_data, recovered)
         
         # End Plot 3 charts
         
@@ -401,15 +383,50 @@ app$callback(
         # TODO: Write a function to load the world map
         world_map <- 'World map'
         
-        
+        print(chart_data)
         # End world map
         
-        list(line_totalcases, line_totaldeaths, line_totalrecovered)
+        list(line_totalcases, line_totaldeaths, line_totalrecovered, '')
     }
 )
 
-# Function to hide / show selection mode
-# Will do after finishing above functions
+app$callback(
+    list(
+        output('blank_div', 'style'),
+        output('region_selection', 'style'),
+        output('country_selection', 'style')
+    ),
+    list(
+        input('selection_mode', 'value')
+    ),
+    function(selection_mode) {
+        print("Hide/Show selection,")
+        print(selection_mode)
+        print(typeof(selection_mode))
+        SELECTION_WORLD = 1L
+        SELECTION_REGION = 2L
+        SELECTION_COUNTRY = 3L
+        print(typeof(SELECTION_REGION))
+        
+        world_style = list('height' = '35px')
+        region_style = list('display' = 'none')
+        country_style = list('display'= 'none')
+
+        print("before")
+        if (selection_mode == SELECTION_REGION){
+            print('Region mode')
+            world_style = list('display' = 'none')
+            region_style = list('display' = 'block')
+        }
+        else if (selection_mode == SELECTION_COUNTRY){
+            print('Country mode')
+            world_style = list('display' = 'none')
+            country_style = list('display' = 'block')
+        }
+        
+        list(world_style, region_style, country_style)
+    }
+)
 
 # Function for loading screen
 # Will do after finishing above functions
