@@ -24,14 +24,15 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
     if (show_legend) {
         print('show legend for ')
         print(title)
-        chart <- chart + theme(legend.position = "bottom")
+        chart <- chart + theme(legend.position = "bottom",
+                               axis.title.x=element_blank())
     } else {
         print('hide legend for ')
         print(title)
         chart <- chart + theme(legend.position = "none")
     }
         
-    result <- ggplotly(chart)
+    result <- ggplotly(chart, height = 300)
     
     if (show_legend) {
         result <- result %>%
@@ -99,10 +100,6 @@ load_population_data <- function() {
 
 load_country_code <- function() {
     country_code_data <- read_csv("data/raw/2014_world_gdp_with_codes.csv")
-    
-    # country_code_data <- country_code_data %>%
-    #     rename(country_region = "country")# %>%
-        # select(-country_code)
     
     country_code_data$country_region <- country_code_data$country_region %>%
         as.factor()
@@ -206,7 +203,6 @@ selection_mode <- htmlDiv(
 
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
-    # 'Blank Div',
     id = 'blank_div',
     style = list(
         'color' = 'white',
@@ -221,7 +217,8 @@ region_selection <- htmlDiv(
         dccDropdown(
             id = 'region_selection',
             options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
-            placeholder="Africa",
+            placeholder = "Select region",
+            value = "Africa",
             multi = TRUE
         )  
     )
@@ -234,7 +231,8 @@ country_selection <- htmlDiv(
         dccDropdown(
             id = 'country_selection',
             options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
-            placeholder="Afghanistan",
+            placeholder = "Select country",
+            value="Afghanistan",
             multi = TRUE
         )  
     )
@@ -330,7 +328,8 @@ app$layout(
                     dbcCol(
                         total_recovered_linechart, width = 4
                     )
-                )
+                ),
+                style = list('margin-top' = '-100px')
             )
         )
     )
@@ -376,6 +375,7 @@ app$callback(
                 filter(who_region %in% region)
         } else if (selection_mode == SELECTION_COUNTRY) {
             print("Select country")
+            print(country)
             chart_data <- country_daywise_df %>%
                 filter(country_region %in% country)
             map_data <- chart_data
