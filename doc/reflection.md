@@ -16,7 +16,7 @@ The secondary focus on this milestone was to improve upon the feedback that was 
 
 One of the known issues specific to the R implementation is that as more countries or regions are added to the dropdown field, the legend expands into the center plot. This causes the center plot to shrink and appear disproportionate in sizing relative to the other plots. 
 
-As milestone four approches, some general features for future implementation include:
+As milestone four approaches, some general features for future implementation include:
 
 - Improving the general aesthetics and design 
 - Introducing more interactivity with clicking on the map
