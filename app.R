@@ -19,15 +19,27 @@ plot_chart <- function(chart_data, col) {
             color = country_region) +
         geom_line() 
         
-    
     ggplotly(chart, width = 600)
 }
 
 
 
 # 1.2: Function to generate the map
-plot_map <- function() {
-    ''
+plot_map <- function(map_data) {
+    map <- plot_ly(map_data, 
+                   type='choropleth', 
+                   locations=~as.character(country_code), 
+                   locationmode='country names',
+                   colorscale = 'Portland',
+                   zmin = 0,
+                   zmax = 1000000,
+                   colorbar = list(title = 'Confirmed Cases', x = 1.0, y = 0.9),
+                   z=~confirmed,
+                   unselected = list(marker= list(opacity = 0.1)),
+                   marker=list(line=list(color = 'black', width=0.2)
+                   ))
+    map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
+                   clickmode = 'event+select', autosize = FALSE, width = 650, height = 450)
 }
 
 # 1.3 Function to load data
@@ -70,8 +82,8 @@ load_country_code <- function() {
     country_code_data <- read_csv("data/country_location.csv")
     
     country_code_data <- country_code_data %>%
-        rename(country_region = "country") %>%
-        select(-country_code)
+        rename(country_region = "country")# %>%
+        # select(-country_code)
     
     country_code_data$country_region <- country_code_data$country_region %>%
         as.factor()
@@ -239,12 +251,10 @@ total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
 
 # 4.5: Map
 world_map <- htmlDiv(
-    'World Map',
-    id = 'world_map',
-    style = list(
-        'color' = 'white',
-        'background-color' = 'purple'
-        )
+    list(
+        dccGraph(figure = plot_map(country_daywise_df),
+                 id = 'world_map')
+    )
 )
 
 
@@ -313,7 +323,7 @@ app$callback(
         output('line_totalcases', 'figure'),
         output('line_totaldeaths', 'figure'),
         output('line_totalrecovered', 'figure'),
-        output('world_map', 'children')
+        output('world_map', 'figure')
     ),
     list(
         input('selection_mode', 'value'),
@@ -386,7 +396,10 @@ app$callback(
         print(chart_data)
         # End world map
         
-        list(line_totalcases, line_totaldeaths, line_totalrecovered, '')
+        list(line_totalcases,
+             line_totaldeaths,
+             line_totalrecovered,
+             plot_map(map_data))
     }
 )
 
