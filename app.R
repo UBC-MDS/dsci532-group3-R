@@ -6,28 +6,60 @@ library(dashBootstrapComponents)
 library(tidyverse)
 library(stringr)
 library(plotly)
+library(ggplot2)
 
 # 1: Functions
 
 
 # 1.1: Function to plot the charts
 
-plot_chart <- function(chart_data, col) {
+plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
     chart <- ggplot(chart_data) +
         aes(x = date,
             y = {{col}},
             color = country_region) +
-        geom_line() 
-        
+        geom_line() +
+        labs(y = title)
     
-    ggplotly(chart, width = 600)
+    if (show_legend) {
+        print('show legend for ')
+        print(title)
+        chart <- chart + theme(legend.position = "bottom",
+                               axis.title.x=element_blank())
+    } else {
+        print('hide legend for ')
+        print(title)
+        chart <- chart + theme(legend.position = "none")
+    }
+        
+    result <- ggplotly(chart, height = 300)
+    
+    if (show_legend) {
+        result <- result %>%
+            layout(legend = list(orientation = "h", x = 0, y = 0))
+    }
+    
+    result
 }
 
 
 
 # 1.2: Function to generate the map
-plot_map <- function() {
-    ''
+plot_map <- function(map_data, title) {
+    map <- plot_ly(map_data, 
+                   type='choropleth', 
+                   locations=~as.character(code), 
+                   # locationmode='country names',
+                   colorscale = 'Portland',
+                   # zmin = 0,
+                   # zmax = 1000000,
+                   colorbar = list(title = title, x = 1.0, y = 0.9),
+                   z=~confirmed,
+                   unselected = list(marker= list(opacity = 0.1)),
+                   marker=list(line=list(color = 'black', width=0.2)
+                   ))
+    map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
+                   clickmode = 'event+select', autosize = FALSE, width = 650, height = 450)
 }
 
 # 1.3 Function to load data
@@ -67,11 +99,7 @@ load_population_data <- function() {
 }
 
 load_country_code <- function() {
-    country_code_data <- read_csv("data/country_location.csv")
-    
-    country_code_data <- country_code_data %>%
-        rename(country_region = "country") %>%
-        select(-country_code)
+    country_code_data <- read_csv("data/raw/2014_world_gdp_with_codes.csv")
     
     country_code_data$country_region <- country_code_data$country_region %>%
         as.factor()
@@ -175,7 +203,6 @@ selection_mode <- htmlDiv(
 
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
-    # 'Blank Div',
     id = 'blank_div',
     style = list(
         'color' = 'white',
@@ -190,7 +217,8 @@ region_selection <- htmlDiv(
         dccDropdown(
             id = 'region_selection',
             options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
-            placeholder="Africa",
+            placeholder = "Select region",
+            value = "Africa",
             multi = TRUE
         )  
     )
@@ -203,7 +231,8 @@ country_selection <- htmlDiv(
         dccDropdown(
             id = 'country_selection',
             options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
-            placeholder="Afghanistan",
+            placeholder = "Select country",
+            value="Afghanistan",
             multi = TRUE
         )  
     )
@@ -239,12 +268,10 @@ total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
 
 # 4.5: Map
 world_map <- htmlDiv(
-    'World Map',
-    id = 'world_map',
-    style = list(
-        'color' = 'white',
-        'background-color' = 'purple'
-        )
+    list(
+        dccGraph(figure = plot_map(country_daywise_df, 'Confirmed'),
+                 id = 'world_map')
+    )
 )
 
 
@@ -301,7 +328,8 @@ app$layout(
                     dbcCol(
                         total_recovered_linechart, width = 4
                     )
-                )
+                ),
+                style = list('margin-top' = '-100px')
             )
         )
     )
@@ -313,7 +341,7 @@ app$callback(
         output('line_totalcases', 'figure'),
         output('line_totaldeaths', 'figure'),
         output('line_totalrecovered', 'figure'),
-        output('world_map', 'children')
+        output('world_map', 'figure')
     ),
     list(
         input('selection_mode', 'value'),
@@ -326,67 +354,86 @@ app$callback(
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         print("callback function")
         # Start filtering data
-        # temporarily fake data. When implement please remove the fake data
-        SELECTION_WORLD = 1
-        SELECTION_REGION = 2
-        SELECTION_COUNTRY = 3
-        # selection_mode = SELECTION_WORLD
-        
-        DATA_ABSOLUTE = 1
-        DATA_PER1M = 2
-        data_mode = DATA_ABSOLUTE
-        
-        start_date = '2020-01-27'
-        end_date = '2020-07-27'
-        
+        SELECTION_WORLD = 1L
+        SELECTION_REGION = 2L
+        SELECTION_COUNTRY = 3L
+
+        DATA_ABSOLUTE = 1L
+        DATA_PER1M = 2L
+
         chart_data <- world_daywise_df
         map_data <- country_daywise_df
         
         if (selection_mode == SELECTION_REGION) {
+            print("Select region")
+            print(region)
+            print(typeof(region))
             chart_data <- region_daywise_df %>%
                 filter(who_region %in% region)
             
             map_data <- map_data %>%
                 filter(who_region %in% region)
         } else if (selection_mode == SELECTION_COUNTRY) {
+            print("Select country")
+            print(country)
             chart_data <- country_daywise_df %>%
                 filter(country_region %in% country)
             map_data <- chart_data
         }
         
+        # print(start_date, end_date)
         chart_data <- chart_data %>%
-            filter(date >= start_date, date <= end_date)
+            filter(date >= start_date & date <= end_date)
         
         map_data <- map_data %>%
-            filter(date >= start_date, date <= end_date)        
+            filter(date >= start_date & date <= end_date)        
 
+        map_title <- 'Confirmed Cases'
+        suffix <- ''
         if (data_mode == DATA_PER1M) {
-            # TODO: divide by Population. Then multiply by 1M
+            print("Switching to Per 1M")
+            suffix <- ' per 1M'
+            map_title <- paste0(map_title, '\n', suffix)
+            
             chart_data <- chart_data %>%
                 mutate(confirmed = (confirmed/population)*1000000) %>%
                 mutate(deaths = (deaths/population)*1000000) %>%
                 mutate(recovered = (recovered/population)*1000000)
-            map_data <- chart_data
-                
+            map_data <- map_data %>%
+                mutate(confirmed = (confirmed/population)*1000000) %>%
+                mutate(deaths = (deaths/population)*1000000) %>%
+                mutate(recovered = (recovered/population)*1000000)
         }
         
         # End filtering data
         
         # Start Plot 3 charts
-        line_totalcases <- plot_chart(chart_data, confirmed)
-        line_totaldeaths <- plot_chart(chart_data, deaths)
-        line_totalrecovered <- plot_chart(chart_data, recovered)
+        line_totalcases <- plot_chart(chart_data, confirmed, paste0('Confirmed', suffix))
+        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix), TRUE)
+        line_totalrecovered <- plot_chart(chart_data, recovered, paste0('Recovered', suffix))
         
         # End Plot 3 charts
         
         # Start world map
-        # TODO: Write a function to load the world map
-        world_map <- 'World map'
+        map_data <- map_data %>%
+            group_by(country_region, code) %>%
+            summarize(confirmed = mean(confirmed),
+                      deaths = mean(deaths),
+                      recovered = mean(recovered),
+                      active = mean(active),
+                      new_cases = mean(new_cases),
+                      new_deaths = mean(new_deaths),
+                      new_recovered = mean(new_recovered),
+                      population = mean(population)) %>%
+            ungroup()
         
+        world_map <- plot_map(map_data, map_title)
+        
+        # print(map_data)
         print(chart_data)
         # End world map
         
-        list(line_totalcases, line_totaldeaths, line_totalrecovered, '')
+        list(line_totalcases, line_totaldeaths, line_totalrecovered, world_map)
     }
 )
 
