@@ -346,9 +346,6 @@ app$callback(
         DATA_PER1M = 2
         data_mode = DATA_ABSOLUTE
         
-        start_date = '2020-01-27'
-        end_date = '2020-07-27'
-        
         chart_data <- world_daywise_df
         map_data <- country_daywise_df
         
@@ -368,11 +365,12 @@ app$callback(
             map_data <- chart_data
         }
         
+        # print(start_date, end_date)
         chart_data <- chart_data %>%
-            filter(date >= start_date, date <= end_date)
+            filter(date >= start_date & date <= end_date)
         
         map_data <- map_data %>%
-            filter(date >= start_date, date <= end_date)        
+            filter(date >= start_date & date <= end_date)        
 
         if (data_mode == DATA_PER1M) {
             # TODO: divide by Population. Then multiply by 1M
@@ -409,7 +407,8 @@ app$callback(
         
         world_map <- plot_map(map_data)
         
-        print(map_data)
+        # print(map_data)
+        print(chart_data)
         # End world map
         
         list(line_totalcases, line_totaldeaths, line_totalrecovered, world_map)
