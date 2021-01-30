@@ -14,6 +14,18 @@ library(scales)
 
 # 1.1: Function to plot the charts
 
+#' Plots line chart for Confirmed, Deaths and Recovered data
+#'
+#' @param chart_data: df that contains target feature versus time
+#' @param col: column for target feature
+#' @param title: title for charts
+#'
+#' @return line charts for Confirmed, Deaths and Recovered cases versus time
+#'   
+#' @export
+#'
+#' @examples
+#' plot_chart(chart_data, confirmed, "Confirmed Cases")
 plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
     chart <- ggplot(chart_data) +
         aes(x = date,
@@ -50,6 +62,18 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 
 
 # 1.2: Function to generate the map
+
+#' Generates interactive world map with Confirmed cases around the world
+#'
+#' @param map_data: df that contains confirmed cases data
+#' @param title: title for the map
+#'
+#' @return world map with Confirmed cases
+#'   
+#' @export
+#'
+#' @examples
+#' plot_map(map_data, "World Map")
 plot_map <- function(map_data, title) {
     map <- plot_ly(map_data, 
                    type='choropleth', 
@@ -68,6 +92,17 @@ plot_map <- function(map_data, title) {
 }
 
 # 1.3 Function to load data
+
+#' Reads, modifies and loads daily_data from csv file
+#'
+#' @param 
+#'
+#' @return df for daily_data
+#'   
+#' @export
+#'
+#' @examples
+#' load_daily_data()
 load_daily_data <- function() {
     daily_data <- read_csv("data/raw/full_grouped.csv")
     
@@ -92,6 +127,16 @@ load_daily_data <- function() {
     daily_data
 }
 
+#' Reads, modifies and loads population_data from csv file
+#'
+#' @param 
+#'
+#' @return df for population_data
+#'   
+#' @export
+#'
+#' @examples
+#' load_population_data()
 load_population_data <- function() {
     population_data <- read_csv("data/processed/worldometer_data.csv") %>%
         rename(country_region = "Country/Region",
@@ -103,6 +148,16 @@ load_population_data <- function() {
     population_data
 }
 
+#' Reads, modifies and loads country_code_data from csv file
+#'
+#' @param 
+#'
+#' @return df for country_code_data
+#'   
+#' @export
+#'
+#' @examples
+#' load_country_code()
 load_country_code <- function() {
     country_code_data <- read_csv("data/raw/2014_world_gdp_with_codes.csv")
     
