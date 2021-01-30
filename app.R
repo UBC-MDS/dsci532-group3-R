@@ -425,6 +425,13 @@ app$callback(
         input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value')
     ),
+    #' Updates data based on selection criteria and outputs charts and map
+    #'
+    #' @param 
+    #'
+    #' @return three plots and world map
+    #'   
+    #' @export
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         print("callback function")
         # Start filtering data
@@ -525,6 +532,13 @@ app$callback(
     list(
         input('selection_mode', 'value')
     ),
+    #' Hides and shows selection field based on options selected
+    #'
+    #' @param 
+    #'
+    #' @return hidden or selected fields
+    #'   
+    #' @export
     function(selection_mode) {
         print("Hide/Show selection,")
         print(selection_mode)
@@ -567,6 +581,13 @@ app$callback(
         input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value')
     ),
+    #' Displays loading screen
+    #'
+    #' @param 
+    #'
+    #' @return loading screen
+    #'   
+    #' @export
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         time_to_sleep <- 1
         
