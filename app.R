@@ -7,6 +7,7 @@ library(tidyverse)
 library(stringr)
 library(plotly)
 library(ggplot2)
+library(scales)
 
 # 1: Functions
 
@@ -19,6 +20,8 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
             y = {{col}},
             color = country_region) +
         geom_line() +
+        scale_x_date(labels = date_format("%b"),
+                     breaks = date_breaks("month")) +
         labs(y = title)
     
     if (show_legend) {
