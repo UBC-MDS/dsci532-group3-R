@@ -6,21 +6,39 @@ library(dashBootstrapComponents)
 library(tidyverse)
 library(stringr)
 library(plotly)
+library(ggplot2)
 
 # 1: Functions
 
 
 # 1.1: Function to plot the charts
 
-plot_chart <- function(chart_data, col, title) {
+plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
     chart <- ggplot(chart_data) +
         aes(x = date,
             y = {{col}},
             color = country_region) +
         geom_line() +
         labs(y = title)
+    
+    if (show_legend) {
+        print('show legend for ')
+        print(title)
+        chart <- chart + theme(legend.position = "bottom")
+    } else {
+        print('hide legend for ')
+        print(title)
+        chart <- chart + theme(legend.position = "none")
+    }
         
-    ggplotly(chart, width = 600)
+    result <- ggplotly(chart)
+    
+    if (show_legend) {
+        result <- result %>%
+            layout(legend = list(orientation = "h", x = 0, y = 0))
+    }
+    
+    result
 }
 
 
@@ -391,7 +409,7 @@ app$callback(
         
         # Start Plot 3 charts
         line_totalcases <- plot_chart(chart_data, confirmed, paste0('Confirmed', suffix))
-        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix))
+        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix), TRUE)
         line_totalrecovered <- plot_chart(chart_data, recovered, paste0('Recovered', suffix))
         
         # End Plot 3 charts
