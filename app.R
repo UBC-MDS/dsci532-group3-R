@@ -12,12 +12,13 @@ library(plotly)
 
 # 1.1: Function to plot the charts
 
-plot_chart <- function(chart_data, col) {
+plot_chart <- function(chart_data, col, title) {
     chart <- ggplot(chart_data) +
         aes(x = date,
             y = {{col}},
             color = country_region) +
-        geom_line() 
+        geom_line() +
+        labs(y = title)
         
     ggplotly(chart, width = 600)
 }
@@ -25,7 +26,7 @@ plot_chart <- function(chart_data, col) {
 
 
 # 1.2: Function to generate the map
-plot_map <- function(map_data) {
+plot_map <- function(map_data, title) {
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
@@ -33,7 +34,7 @@ plot_map <- function(map_data) {
                    colorscale = 'Portland',
                    # zmin = 0,
                    # zmax = 1000000,
-                   colorbar = list(title = 'Confirmed Cases', x = 1.0, y = 0.9),
+                   colorbar = list(title = title, x = 1.0, y = 0.9),
                    z=~confirmed,
                    unselected = list(marker= list(opacity = 0.1)),
                    marker=list(line=list(color = 'black', width=0.2)
@@ -252,7 +253,7 @@ total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df),
+        dccGraph(figure = plot_map(country_daywise_df, 'Confirmed'),
                  id = 'world_map')
     )
 )
@@ -336,16 +337,13 @@ app$callback(
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         print("callback function")
         # Start filtering data
-        # temporarily fake data. When implement please remove the fake data
         SELECTION_WORLD = 1L
         SELECTION_REGION = 2L
         SELECTION_COUNTRY = 3L
-        # selection_mode = SELECTION_WORLD
-        
-        DATA_ABSOLUTE = 1
-        DATA_PER1M = 2
-        data_mode = DATA_ABSOLUTE
-        
+
+        DATA_ABSOLUTE = 1L
+        DATA_PER1M = 2L
+
         chart_data <- world_daywise_df
         map_data <- country_daywise_df
         
@@ -372,27 +370,33 @@ app$callback(
         map_data <- map_data %>%
             filter(date >= start_date & date <= end_date)        
 
+        map_title <- 'Confirmed Cases'
+        suffix <- ''
         if (data_mode == DATA_PER1M) {
-            # TODO: divide by Population. Then multiply by 1M
+            print("Switching to Per 1M")
+            suffix <- ' per 1M'
+            map_title <- paste0(map_title, '\n', suffix)
+            
             chart_data <- chart_data %>%
                 mutate(confirmed = (confirmed/population)*1000000) %>%
                 mutate(deaths = (deaths/population)*1000000) %>%
                 mutate(recovered = (recovered/population)*1000000)
-            map_data <- chart_data
-                
+            map_data <- map_data %>%
+                mutate(confirmed = (confirmed/population)*1000000) %>%
+                mutate(deaths = (deaths/population)*1000000) %>%
+                mutate(recovered = (recovered/population)*1000000)
         }
         
         # End filtering data
         
         # Start Plot 3 charts
-        line_totalcases <- plot_chart(chart_data, confirmed)
-        line_totaldeaths <- plot_chart(chart_data, deaths)
-        line_totalrecovered <- plot_chart(chart_data, recovered)
+        line_totalcases <- plot_chart(chart_data, confirmed, paste0('Confirmed', suffix))
+        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix))
+        line_totalrecovered <- plot_chart(chart_data, recovered, paste0('Recovered', suffix))
         
         # End Plot 3 charts
         
         # Start world map
-        # TODO: Write a function to load the world map
         map_data <- map_data %>%
             group_by(country_region, code) %>%
             summarize(confirmed = mean(confirmed),
@@ -405,7 +409,7 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data)
+        world_map <- plot_map(map_data, map_title)
         
         # print(map_data)
         print(chart_data)
