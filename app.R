@@ -313,6 +313,7 @@ app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 app$layout(
     dbcContainer(
         list (
+            htmlH3('WHO Coronavirus Disease (COVID-19) Dashboard'),
             dbcRow(
                 list(
                     dbcCol(
