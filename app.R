@@ -22,13 +22,15 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         geom_line() +
         scale_x_date(labels = date_format("%b"),
                      breaks = date_breaks("month")) +
-        labs(y = title)
+        scale_y_continuous(labels = scales::label_number_si()) +
+        theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
+        labs(y = title) +
+        ggtitle(title)
     
     if (show_legend) {
         print('show legend for ')
         print(title)
-        chart <- chart + theme(legend.position = "bottom",
-                               axis.title.x=element_blank())
+        chart <- chart + theme(legend.position = "bottom")
     } else {
         print('hide legend for ')
         print(title)
@@ -285,7 +287,7 @@ data_mode_selection <- htmlDiv(
         dccRadioItems(
             id = 'data_mode_selection',
             options=list(list('label' = 'Absolute', 'value' = 1),
-                list('label' = 'Per Capita', 'value' = 2)),
+                list('label' = 'Per 1M', 'value' = 2)),
             value=1,
             labelStyle=list('margin-right' = '25px'),
             inputStyle=list('margin-right'= '5px')
@@ -293,6 +295,13 @@ data_mode_selection <- htmlDiv(
     )
 )
 
+loading <- htmlDiv(
+    dccLoading(
+        id = 'loading',
+        type = 'circle'
+    ),
+    style = list('height' = '1px', 'width' = '1920px')
+)
 
 # 5: Skeleton of the server
 
@@ -319,6 +328,9 @@ app$layout(
                         width = 8
                     )
                 ),
+            ),
+            dbcRow(
+                loading    
             ),
             dbcRow(
                 list(
@@ -479,7 +491,26 @@ app$callback(
 )
 
 # Function for loading screen
-# Will do after finishing above functions
+app$callback(
+    list(
+        output('loading', 'children')
+    ),
+    list(
+        input('selection_mode', 'value'),
+        input('region_selection', 'value'),
+        input('country_selection', 'value'),
+        input('date_range_selection', 'start_date'),
+        input('date_range_selection', 'end_date'),
+        input('data_mode_selection', 'value')
+    ),
+    function(selection_mode, region, country, start_date, end_date, data_mode) {
+        time_to_sleep <- 1
+        
+        Sys.sleep(time_to_sleep)
+        
+        ''
+    }
+)
 
 
 app$run_server(host = '0.0.0.0')
