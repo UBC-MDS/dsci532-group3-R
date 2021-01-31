@@ -9,7 +9,9 @@ App: COVID-19 [Dashboard](https://covid-19-mds-532-group3-r.herokuapp.com/)
 ## Welcome!
 Hello and welcome to our COVID-19 Dashboard - an interactive app that allows users to explore COVID-19 confirmed cases, deaths and recoveries around the world. 
 
-As the pandemic continues into 2021, the intent of this app is to allow users to examine the first seven months of 2020 to visualize how the pandemic progressed in the early stages. Users can view this data both on a global scale as well as on a region or country basis. The app also allows users to compare countries or regions across time periods to understand how different lockdown measures may have impacted these key measures.
+As the pandemic continues into 2021, the intent of this app is to allow users to examine the first seven months of 2020 to visualize how the pandemic progressed in the early stages. Users can view this data both on a global scale as well as on a region or country basis. The app also allows users to compare countries or regions across time periods to understand how different lockdown measures may have impacted these key measures. A preview of the dashboard can be seen below:
+
+![appR.png](images/appR.png)
 
 ### App Sketch
 
