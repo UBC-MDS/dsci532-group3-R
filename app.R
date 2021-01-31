@@ -78,7 +78,7 @@ plot_map <- function(map_data, title) {
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
-                   # locationmode='country names',
+                   # locationmode='country names,
                    colorscale = 'Portland',
                    # zmin = 0,
                    # zmax = 1000000,
@@ -88,7 +88,8 @@ plot_map <- function(map_data, title) {
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                   clickmode = 'event+select', autosize = FALSE, width = 650, height = 450)
+                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
+                   margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
 }
 
 # 1.3 Function to load data
@@ -279,7 +280,8 @@ region_selection <- htmlDiv(
             options = regions$who_region %>% purrr::map(function(col) list(label = col, value = col)),
             placeholder = "Select region",
             value = "Africa",
-            multi = TRUE
+            multi = TRUE,
+            style = list('display' = 'none')
         )  
     )
 )
@@ -293,7 +295,8 @@ country_selection <- htmlDiv(
             options = countries$country_region %>% purrr::map(function(col) list(label = col, value = col)),
             placeholder = "Select country",
             value="Afghanistan",
-            multi = TRUE
+            multi = TRUE,
+            style = list('display' = 'none')
         )  
     )
 )
@@ -365,6 +368,7 @@ app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 app$layout(
     dbcContainer(
         list (
+            htmlH3('WHO Coronavirus Disease (COVID-19) Dashboard'),
             dbcRow(
                 list(
                     dbcCol(
@@ -421,6 +425,13 @@ app$callback(
         input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value')
     ),
+    #' Updates data based on selection criteria and outputs charts and map
+    #'
+    #' @param 
+    #'
+    #' @return three plots and world map
+    #'   
+    #' @export
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         print("callback function")
         # Start filtering data
@@ -475,6 +486,11 @@ app$callback(
                 mutate(recovered = (recovered/population)*1000000)
         }
         
+        
+        chart_data <- chart_data %>%
+            mutate(across(where(is.numeric), round, 2))
+        map_data <- map_data %>%
+            mutate(across(where(is.numeric), round, 0))
         # End filtering data
         
         # Start Plot 3 charts
@@ -516,6 +532,13 @@ app$callback(
     list(
         input('selection_mode', 'value')
     ),
+    #' Hides and shows selection field based on options selected
+    #'
+    #' @param 
+    #'
+    #' @return hidden or selected fields
+    #'   
+    #' @export
     function(selection_mode) {
         print("Hide/Show selection,")
         print(selection_mode)
@@ -533,12 +556,12 @@ app$callback(
         if (selection_mode == SELECTION_REGION){
             print('Region mode')
             world_style = list('display' = 'none')
-            region_style = list('display' = 'block')
+            region_style = list('display' = 'table', 'width' = '100%')
         }
         else if (selection_mode == SELECTION_COUNTRY){
             print('Country mode')
             world_style = list('display' = 'none')
-            country_style = list('display' = 'block')
+            country_style = list('display' = 'table', 'width' = '100%')
         }
         
         list(world_style, region_style, country_style)
@@ -558,6 +581,13 @@ app$callback(
         input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value')
     ),
+    #' Displays loading screen
+    #'
+    #' @param 
+    #'
+    #' @return loading screen
+    #'   
+    #' @export
     function(selection_mode, region, country, start_date, end_date, data_mode) {
         time_to_sleep <- 1
         
