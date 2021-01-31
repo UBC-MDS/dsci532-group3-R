@@ -427,7 +427,12 @@ app$callback(
     ),
     #' Updates data based on selection criteria and outputs charts and map
     #'
-    #' @param 
+    #' @param selection_mode indicates if user is filtering for world, region or country
+    #' @param region region being filtered
+    #' @param country country being filtered
+    #' @param start_date start date being filtered
+    #' @param end_date end date being filtered
+    #' @param data_mode indicates absolute or per 1M data being filtered
     #'
     #' @return three plots and world map
     #'   
@@ -534,7 +539,7 @@ app$callback(
     ),
     #' Hides and shows selection field based on options selected
     #'
-    #' @param 
+    #' @param selection_mode indicates if user is filtering for world, region or country
     #'
     #' @return hidden or selected fields
     #'   
@@ -583,7 +588,12 @@ app$callback(
     ),
     #' Displays loading screen
     #'
-    #' @param 
+    #' @param selection_mode indicates if user is filtering for world, region or country
+    #' @param region region being filtered
+    #' @param country country being filtered
+    #' @param start_date start date being filtered
+    #' @param end_date end date being filtered
+    #' @param data_mode indicates absolute or per 1M data being filtered
     #'
     #' @return loading screen
     #'   
