@@ -367,8 +367,17 @@ app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 
 app$layout(
     dbcContainer(
-        list (
-            htmlH3('WHO Coronavirus Disease (COVID-19) Dashboard'),
+        list(
+            htmlH3('WHO Coronavirus Disease (COVID-19) Dashboard',
+                   style=list(
+                       'backgroundColor'= 'darkgrey',
+                       'padding'= 20,
+                       'color'= 'white',
+                       'margin-top'= 20,
+                       'margin-bottom'= 20,
+                       'text-align'= 'center',
+                       'font-size'= '25px',
+                       'border-radius'= 3)),
             dbcRow(
                 list(
                     dbcCol(
