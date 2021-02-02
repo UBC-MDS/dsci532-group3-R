@@ -258,7 +258,7 @@ selection_mode <- htmlDiv(
                      list('label' = 'Countries', 'value' = 3)),
         value=1,
         labelStyle=list('margin-right' = '15px'),
-        inputStyle=list('margin-right'= '5px'))  
+        inputStyle=list('margin-right'= '5px'))
     )
 )
 
@@ -313,7 +313,8 @@ date_range_selection <- htmlDiv(
             start_date = as.Date('2020-01-22'),
             end_date = as.Date('2020-07-27')
         ),
-    htmlDiv(id='output-container-date-picker-range')
+    htmlDiv(id='output-container-date-picker-range'),
+    htmlBr()
     )
 )
 
@@ -368,16 +369,17 @@ app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 app$layout(
     dbcContainer(
         list(
-            htmlH3('WHO Coronavirus Disease (COVID-19) Dashboard',
+            htmlH1('WHO Coronavirus Disease (COVID-19) Dashboard',
                    style=list(
                        'backgroundColor'= 'darkgrey',
                        'padding'= 20,
                        'color'= 'white',
                        'margin-top'= 20,
                        'margin-bottom'= 20,
-                       'text-align'= 'center',
+                       'text-align'= 'left',
                        'font-size'= '25px',
-                       'border-radius'= 3)),
+                       'border-radius'= 3,
+                       'width' = '1500px')),
             dbcRow(
                 list(
                     dbcCol(
@@ -389,7 +391,11 @@ app$layout(
                             date_range_selection,
                             data_mode_selection
                         ),
-                        width = 4
+                        style=list(
+                            'background-color'= '#e6e6e6',
+                            'padding' = 25,
+                            'border-radius'= 3,
+                            'height' = '400px')
                     ),
                     dbcCol(
                         world_map,
