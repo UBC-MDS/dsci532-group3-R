@@ -88,7 +88,7 @@ plot_map <- function(map_data, title) {
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
+                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 300,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
 }
 
