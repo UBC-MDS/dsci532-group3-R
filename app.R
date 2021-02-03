@@ -248,17 +248,7 @@ print(regions)
 # 4.1: Learn More Button
 collapse = htmlDiv(
     list(
-        dbcButton(
-            list(
-            "Learn more",
-            id="collapse-button",
-            className="mb-3",
-            outline=FALSE,
-            style=list('margin-top'= '10px',
-                'width'= '150px',
-                'background-color'= 'white',
-                'color'= 'steelblue')
-        ))
+        htmlButton("Learn More", id="collapse-button")
     )
 )
 
@@ -391,9 +381,9 @@ app$layout(
                         list(
                             htmlH1('WHO Coronavirus Disease (COVID-19) Dashboard',
                                    style=list(
-                                       'backgroundColor'= 'darkgrey',
+                                       'backgroundColor'= '#e6e6e6',
                                        'padding'= 30,
-                                       'color'= 'white',
+                                       'color'= 'black',
                                        'margin-top'= 20,
                                        'margin-bottom'= 20,
                                        'text-align'= 'left',
@@ -401,16 +391,11 @@ app$layout(
                                        'border-radius'= 3,
                                        'width' = '1500px')),
                             dbcCollapse(list(
-                                htmlP(paste("
-                        This dashboard allows you to explore COVID-19 data! Get started by selecting the options you are interested in on the menu to the left.")),
-                                style=list('color'= 'white', 'width'= '50%'),
-                                id="collapse")
-                        )
-                    )),
-                    dbcCol(list(
-                        collapse
-                    )
-                    )
+                                htmlP(paste("This dashboard allows you to explore COVID-19 data! Get started by selecting the options you are interested in on the menu to the left.")),
+                                style=list('color'= 'black', 'width'= '50%'),
+                                id="collapse")),
+                            dbcCol(list(collapse))
+                    ))
             )),
             dbcRow(
                 list(
@@ -427,7 +412,9 @@ app$layout(
                             'background-color'= '#e6e6e6',
                             'padding' = 15,
                             'border-radius'= 3,
-                            'height' = '400px')
+                            'height' = '400px',
+                            'position' ='relative',
+                            'left' = '15px')
                     ),
                     dbcCol(
                         dbcCard(list(
@@ -671,6 +658,32 @@ app$callback(
         Sys.sleep(time_to_sleep)
         
         ''
+    }
+)
+
+# Function for learn more button
+app$callback(
+    list(
+        output('collapse', 'is_open')
+    ),
+    list(
+        input('collapse-button', 'n_clicks'), state('collapse', 'is_open')
+    ),
+    #' Determines if toggle button is selected
+    #'
+    #' @param n number of clicks
+    #' @param is_open is the toggle in open mode
+    #'
+    #' @return collapsed content
+    #'   
+    #' @export
+    function(n, is_open) {
+        if (n) {
+            !is_open
+        }
+        else {
+            is_open
+        }
     }
 )
 
