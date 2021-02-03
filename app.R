@@ -48,7 +48,7 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         print(title)
         chart <- chart + theme(legend.position = "none")
     }
-        
+    
     result <- ggplotly(chart, height = 300)
     
     if (show_legend) {
@@ -250,15 +250,15 @@ print(regions)
 # 4.2: Selection mode (World, Regions, Countries)
 selection_mode <- htmlDiv(
     list(
-    htmlLabel('Selection Mode'),
-    dccRadioItems(
-        id = 'selection_mode',
-        options=list(list('label' = 'World', 'value' = 1),
-                     list('label' = 'Regions', 'value' = 2),
-                     list('label' = 'Countries', 'value' = 3)),
-        value=1,
-        labelStyle=list('margin-right' = '15px'),
-        inputStyle=list('margin-right'= '5px'))  
+        htmlLabel('Selection Mode'),
+        dccRadioItems(
+            id = 'selection_mode',
+            options=list(list('label' = 'World', 'value' = 1),
+                         list('label' = 'Regions', 'value' = 2),
+                         list('label' = 'Countries', 'value' = 3)),
+            value=1,
+            labelStyle=list('margin-right' = '15px'),
+            inputStyle=list('margin-right'= '5px'))  
     )
 )
 
@@ -268,7 +268,7 @@ blank_div <- htmlDiv(
     style = list(
         'color' = 'white',
         'background-color' = 'red'
-        )
+    )
 )
 
 # 4.2.2: Dropdown list for Regions
@@ -313,21 +313,14 @@ date_range_selection <- htmlDiv(
             start_date = as.Date('2020-01-22'),
             end_date = as.Date('2020-07-27')
         ),
-    htmlDiv(id='output-container-date-picker-range')
+        htmlDiv(id='output-container-date-picker-range')
     )
 )
 
-# 4.4: Line charts
+# 4.4: Line charts Combined
 
-# 4.4.1: Confirmed Cases
-total_cases_linechart <- list(dccGraph(id = 'line_totalcases'))
-
-
-# 4.4.2: Deaths
-total_death_linechart <- list(dccGraph(id = 'line_totaldeaths'))
-
-# 4.4.3: Recoveries
-total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
+# 4.4.1: Faceted Plot
+linechart <- list(dccGraph(id = 'line_combined'))
 
 # 4.5: Map
 world_map <- htmlDiv(
@@ -345,7 +338,7 @@ data_mode_selection <- htmlDiv(
         dccRadioItems(
             id = 'data_mode_selection',
             options=list(list('label' = 'Absolute', 'value' = 1),
-                list('label' = 'Per 1M', 'value' = 2)),
+                         list('label' = 'Per 1M', 'value' = 2)),
             value=1,
             labelStyle=list('margin-right' = '25px'),
             inputStyle=list('margin-right'= '5px')
@@ -394,13 +387,7 @@ app$layout(
             dbcRow(
                 list(
                     dbcCol(
-                        total_cases_linechart, width = 4
-                    ),
-                    dbcCol(
-                        total_death_linechart, width = 4
-                    ),
-                    dbcCol(
-                        total_recovered_linechart, width = 4
+                        linechart, width = 8
                     )
                 ),
                 style = list('margin-top' = '-100px')
@@ -412,10 +399,9 @@ app$layout(
 app$callback(
     list(
         # output('output-container-date-picker-range', 'children'),
-        output('line_totalcases', 'figure'),
-        output('line_totaldeaths', 'figure'),
-        output('line_totalrecovered', 'figure'),
+        output('linechart', 'figure'),
         output('world_map', 'figure')
+        
     ),
     list(
         input('selection_mode', 'value'),
@@ -443,10 +429,10 @@ app$callback(
         SELECTION_WORLD = 1L
         SELECTION_REGION = 2L
         SELECTION_COUNTRY = 3L
-
+        
         DATA_ABSOLUTE = 1L
         DATA_PER1M = 2L
-
+        
         chart_data <- world_daywise_df
         map_data <- country_daywise_df
         
@@ -473,7 +459,7 @@ app$callback(
         
         map_data <- map_data %>%
             filter(date >= start_date & date <= end_date)        
-
+        
         map_title <- 'Confirmed Cases'
         suffix <- ''
         if (data_mode == DATA_PER1M) {
@@ -500,8 +486,13 @@ app$callback(
         
         # Start Plot 3 charts
         line_totalcases <- plot_chart(chart_data, confirmed, paste0('Confirmed', suffix))
-        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix), TRUE)
+        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix))
         line_totalrecovered <- plot_chart(chart_data, recovered, paste0('Recovered', suffix))
+        line_newcases <- plot_chart(chart_data, new_cases, paste0('New Cases', suffix))
+        line_newdeaths <- plot_chart(chart_data, new_deaths, paste0('New Deaths', suffix), TRUE)
+        line_newrecovered <- plot_chart(chart_data, new_recovered, paste0('New Recovered', suffix))
+        line_combined <- subplot(line_totalcases, line_totaldeaths, line_totalrecovered,
+                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2)
         
         # End Plot 3 charts
         
@@ -524,7 +515,7 @@ app$callback(
         print(chart_data)
         # End world map
         
-        list(line_totalcases, line_totaldeaths, line_totalrecovered, world_map)
+        list(line_combined, world_map)
     }
 )
 
@@ -556,7 +547,7 @@ app$callback(
         world_style = list('height' = '35px')
         region_style = list('display' = 'none')
         country_style = list('display'= 'none')
-
+        
         print("before")
         if (selection_mode == SELECTION_REGION){
             print('Region mode')
