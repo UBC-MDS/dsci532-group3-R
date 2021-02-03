@@ -245,7 +245,22 @@ print(regions)
 
 # 4: Declare objects
 
-# 4.1: Declare options for Selection Mode / Data Mode as factors
+# 4.1: Learn More Button
+collapse = htmlDiv(
+    list(
+        dbcButton(
+            list(
+            "Learn more",
+            id="collapse-button",
+            className="mb-3",
+            outline=FALSE,
+            style=list('margin-top'= '10px',
+                'width'= '150px',
+                'background-color'= 'white',
+                'color'= 'steelblue')
+        ))
+    )
+)
 
 # 4.2: Selection mode (World, Regions, Countries)
 selection_mode <- htmlDiv(
@@ -369,17 +384,33 @@ app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 app$layout(
     dbcContainer(
         list(
-            htmlH1('WHO Coronavirus Disease (COVID-19) Dashboard',
-                   style=list(
-                       'backgroundColor'= 'darkgrey',
-                       'padding'= 20,
-                       'color'= 'white',
-                       'margin-top'= 20,
-                       'margin-bottom'= 20,
-                       'text-align'= 'left',
-                       'font-size'= '25px',
-                       'border-radius'= 3,
-                       'width' = '1500px')),
+            dbcRow(
+                list(
+                    dbcCol(
+                        list(
+                            htmlH1('WHO Coronavirus Disease (COVID-19) Dashboard',
+                                   style=list(
+                                       'backgroundColor'= 'darkgrey',
+                                       'padding'= 30,
+                                       'color'= 'white',
+                                       'margin-top'= 20,
+                                       'margin-bottom'= 20,
+                                       'text-align'= 'left',
+                                       'font-size'= '25px',
+                                       'border-radius'= 3,
+                                       'width' = '1500px')),
+                            dbcCollapse(list(
+                                htmlP(paste("
+                        This dashboard allows you to explore COVID-19 data! Get started by selecting the options you are interested in on the menu to the left.")),
+                                style=list('color'= 'white', 'width'= '50%'),
+                                id="collapse")
+                        )
+                    )),
+                    dbcCol(list(
+                        collapse
+                    )
+                    )
+            )),
             dbcRow(
                 list(
                     dbcCol(
@@ -393,7 +424,7 @@ app$layout(
                         ),
                         style=list(
                             'background-color'= '#e6e6e6',
-                            'padding' = 25,
+                            'padding' = 15,
                             'border-radius'= 3,
                             'height' = '400px')
                     ),
@@ -419,7 +450,20 @@ app$layout(
                     )
                 ),
                 style = list('margin-top' = '-100px')
-            )
+            ),
+            htmlHr(),
+            htmlP(paste0("This dashboard was made by Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, and Heidi Ye. You can find the source code original data below:")), 
+            htmlA(
+                children = list("GitHub"),
+                href = 'https://github.com/UBC-MDS/dsci532-group3-R',
+                style = list(color = 'blue', padding = '30px')
+            ),
+            htmlA(
+                children = list("COVID-19 Data"),
+                href = 'https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv',
+                style = list(color = 'blue')
+            ),
+            htmlP(paste0("The server was last updated at: ", Sys.Date()))
         )
     )
 )
