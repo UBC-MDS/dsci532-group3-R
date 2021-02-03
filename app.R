@@ -349,7 +349,8 @@ total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
 world_map <- htmlDiv(
     list(
         dccGraph(figure = plot_map(country_daywise_df, 'Confirmed'),
-                 id = 'world_map')
+                 id = 'world_map',
+                 style=list(height='200px'))
     )
 )
 
@@ -429,14 +430,20 @@ app$layout(
                             'height' = '400px')
                     ),
                     dbcCol(
+                        dbcCard(list(
+                            dbcCardHeader('World Map'),
+                            dbcCardBody(
                         world_map,
-                        width = 8
+                        style=list('width' = '15', 'height'= '350px')
+                            ))
+                    )
                     )
                 ),
             ),
             dbcRow(
                 loading    
             ),
+            dbcRow(style=list(height='200px')),
             dbcRow(
                 list(
                     dbcCol(
@@ -463,6 +470,7 @@ app$layout(
                 href = 'https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv',
                 style = list(color = 'blue')
             ),
+            htmlBr(),
             htmlP(paste0("The server was last updated at: ", Sys.Date()))
         )
     )
