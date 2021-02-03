@@ -339,8 +339,7 @@ total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
 world_map <- htmlDiv(
     list(
         dccGraph(figure = plot_map(country_daywise_df, 'Confirmed'),
-                 id = 'world_map',
-                 style=list(height='200px'))
+                 id = 'world_map')
     )
 )
 
@@ -389,14 +388,13 @@ app$layout(
                                        'text-align'= 'left',
                                        'font-size'= '25px',
                                        'border-radius'= 3,
-                                       'width' = '1500px')),
-                            dbcCollapse(list(
-                                htmlP(paste("This dashboard allows you to explore COVID-19 data! Get started by selecting the options you are interested in on the menu to the left.")),
-                                style=list('color'= 'black', 'width'= '50%'),
-                                id="collapse")),
-                            dbcCol(list(collapse))
-                    ))
-            )),
+                                       'width' = '1110px')),
+                            dbcCollapse(
+                                htmlP(list(paste("This dashboard allows you to explore COVID-19 data! Get started by selecting the options you are interested in on the menu to the left."),
+                                style=list('color'= 'black', 'width'= '50%'))),
+                                id="collapse"))),
+                    dbcCol(collapse)
+                    )),
             dbcRow(
                 list(
                     dbcCol(
@@ -661,7 +659,7 @@ app$callback(
     }
 )
 
-# Function for learn more button
+# Function for learn more collapse button
 app$callback(
     list(
         output('collapse', 'is_open')
