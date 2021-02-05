@@ -74,7 +74,7 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
-plot_map <- function(map_data, title) {
+plot_map <- function(map_data, title, case_type) {
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
@@ -83,7 +83,7 @@ plot_map <- function(map_data, title) {
                    # zmin = 0,
                    # zmax = 1000000,
                    colorbar = list(title = title, x = 1.0, y = 0.9),
-                   z=~confirmed,
+                   z=~{{case_type}},
                    unselected = list(marker= list(opacity = 0.1)),
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
@@ -262,6 +262,24 @@ selection_mode <- htmlDiv(
     )
 )
 
+
+# 4.2: Selection mode for map (confirmed, deaths, recovered)
+casetype <- htmlDiv(
+    list(
+        #htmlLabel('Type of cases'),
+        dccDropdown(
+            id = 'casetype',
+            options=list(list('label' = 'Confirmed', 'value' = 'confirmed' ),
+                         list('label' = 'Deaths', 'value' = 'deaths'),
+                         list('label' = 'Recovered', 'value' = 'recovered')),
+            value = "confirmed"
+        
+    )
+))
+
+
+
+
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
     id = 'blank_div',
@@ -378,7 +396,11 @@ app$layout(
                     dbcCol(
                         world_map,
                         width = 8
-                    )
+                    ),
+                    dbcCol(
+                        casetype,
+                        #width = 8
+                    ),
                 ),
             ),
             dbcRow(
@@ -409,7 +431,8 @@ app$callback(
         input('country_selection', 'value'),
         input('date_range_selection', 'start_date'),
         input('date_range_selection', 'end_date'),
-        input('data_mode_selection', 'value')
+        input('data_mode_selection', 'value'),
+        input('case_type', 'value'),
     ),
     #' Updates data based on selection criteria and outputs charts and map
     #'
@@ -423,7 +446,7 @@ app$callback(
     #' @return three plots and world map
     #'   
     #' @export
-    function(selection_mode, region, country, start_date, end_date, data_mode) {
+    function(selection_mode, region, country, start_date, end_date, data_mode, case_type) {
         print("callback function")
         # Start filtering data
         SELECTION_WORLD = 1L
@@ -509,7 +532,7 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data, map_title)
+        world_map <- plot_map(map_data, map_title, case_type)
         
         # print(map_data)
         print(chart_data)
