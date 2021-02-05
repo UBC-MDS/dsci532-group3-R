@@ -1,22 +1,27 @@
-# Reflection
+## Reflection
 
-## Milestone 3 Implementation
+The goal for this last milestone was to finalize a dashboard that incorporated all the feedback from prior iterations. One of the main considerations was developing in R versus Python. The primary advantages of working in Python was that Dash was significantly better documented, meaning that troubleshooting was much more efficient. Furthermore, the deployment time on Heroku was much quicker on the Python version of the app. However, one of the main issues was the performance in terms of load speed. The R version performed significantly better than the Python version. This, coupled with the fact that the R version already had several bugs fixed and additional features implemented, made it the more feasible choice for the final deployment. 
 
-The objective of this week’s milestone was to recreate and improve upon the dashboard from [Milestone 2](https://github.com/UBC-MDS/dsci532-group3) using R instead of Python. Generally speaking, the [Final Dashboard](https://covid-19-mds-532-group3-r.herokuapp.com/) largely resembles the main features and functionality seen in the last iteration. There is an assortment of radio buttons and dropdowns that allow the user to specify the time period, part of the world and metrics they are interested in. The outputs of the dashboard include three interactive plots, as well as a heatmap of the world. 
+### Changes & Improvements
 
-Since this dashboard was an iteration of a previous version, less time was spent on conceptualizing the layout and cleaning the data. The syntactic similarities between how Dash is implemented in Python versus R meant that there was a relatively small learning curve in transitioning to R. For this particular dashboard, there were no features or functionality limitations from using R instead of Python. Interestingly, the R implementation of the dashboard runs much more quickly than the Python version on Heroku, resolving one of the primary issues from the last milestone. This meant that even though the loading screen was implemented in the R version, it wasn't particularly necessary.
+One of the most significant changes in this iteration is the design changes that were implemented. This new version has stylizing that helps users distinguish between areas they can input information and areas where they can view and interact with the dashboard. There is also additional text and links so users can find more information about who built the app, the last updated time and where they can find the original data and source code. Finally, the aesthetics of the plots have been improved to be more visually appealing. 
 
-The secondary focus on this milestone was to improve upon the feedback that was provided. Some of the changes that were implemented include:
+This version of the app also included three additional plots to convey X, Y, Z, faceted as one object. The purpose of this was to give users a more comprehensive level of  information - similar to what was provided in the original dataset. 
 
-- Showing per capita data in millions so that scale is easier to understand
-- Automatic resizing of dropdown list as the number of fields increase
+Other changes include: 
 
+- New colour scale for the map to highlight sequential nature of the data
+- Map data now displays multiple metrics (previously only showed confirmed cases)
 
-## Future Improvements & Additions
+### Unresolved Issues :( 
 
-One of the known issues specific to the R implementation is that as more countries or regions are added to the dropdown field, the legend expands into the center plot. This causes the center plot to shrink and appear disproportionate in sizing relative to the other plots. 
+Although the app has significantly more features and improved user experience since the first version, there are still several known issues that remain unsolved.
 
-As milestone four approaches, some general features for future implementation include:
+- Chart legend thing - blah blah blah
+- Map clickability - did we ever do anything with this?
+- Anything else?? 
 
-- Improving the general aesthetics and design 
-- Introducing more interactivity with clicking on the map
+### Final Thoughts
+
+Building a dashboard is a lot harder than it seems! One of the major takeaways was to focus on the edge cases while testing the app. A recurring theme in the feedback was bugs that only occurred when the app was being used in a certain way. An example of this was the dropdowns being unable to show all the fields selected when a user chose more than five or so categories. Ultimately, the tradeoff was understanding whether it made more sense to fix edge case bugs or to focus our efforts on building new features that would be more widely used. 
+
