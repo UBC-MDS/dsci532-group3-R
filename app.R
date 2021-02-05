@@ -248,7 +248,7 @@ print(regions)
 # 4.1: Learn More Button
 collapse = htmlDiv(
     list(
-        htmlButton("Learn More", id="collapse-button")
+        dbcButton("Learn More", id="collapse-button")
     )
 )
 
@@ -388,12 +388,14 @@ app$layout(
                                        'text-align'= 'left',
                                        'font-size'= '25px',
                                        'border-radius'= 3,
-                                       'width' = '1110px')),
-                            dbcCollapse(
-                                htmlP(list(paste("This dashboard allows you to explore COVID-19 data! Get started by selecting the options you are interested in on the menu to the left."),
-                                style=list('color'= 'black', 'width'= '50%'))),
-                                id="collapse"))),
-                    dbcCol(collapse)
+                                       'width' = '1110px')))),
+                    dbcCol(collapse))),
+            dbcRow(
+                list(
+                dbcCollapse(
+                        htmlP(list("This dashboard allows you to explore COVID-19 data. Get started by selecting the options you are interested in on the menu to the left.")
+                                ),
+                                id="collapse",is_open=FALSE)
                     )),
             dbcRow(
                 list(
@@ -444,7 +446,7 @@ app$layout(
                 style = list('margin-top' = '-100px')
             ),
             htmlHr(),
-            htmlP(paste0("This dashboard was made by Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, and Heidi Ye. You can find the source code original data below:")), 
+            htmlP("This dashboard was made by Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, and Heidi Ye. You can find the source code original data below:"), 
             htmlA(
                 children = list("GitHub"),
                 href = 'https://github.com/UBC-MDS/dsci532-group3-R',
@@ -661,10 +663,8 @@ app$callback(
 
 # Function for learn more collapse button
 app$callback(
-    list(
-        output('collapse', 'is_open')
-    ),
-    list(
+    output('collapse', 'is_open'),
+    params = list(
         input('collapse-button', 'n_clicks'), state('collapse', 'is_open')
     ),
     #' Determines if toggle button is selected
@@ -675,12 +675,16 @@ app$callback(
     #' @return collapsed content
     #'   
     #' @export
-    function(n, is_open) {
-        if (n) {
-            !is_open
+    function(n_clicks, is_open) {
+        if (n_clicks) {
+            #print(!is_open)
+
+            return (!is_open)
         }
         else {
-            is_open
+            print(is_open)
+            return (is_open)
+            
         }
     }
 )
