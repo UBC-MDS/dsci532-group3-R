@@ -23,5 +23,5 @@ Although the app has significantly more features and improved user experience si
 
 ### Final Thoughts
 
-Building a dashboard is a lot harder than it seems! One of the major takeaways was to focus on the edge cases while testing the app. A recurring theme in the feedback was bugs that only occurred when the app was being used in a certain way. An example of this was the dropdowns being unable to show all the fields selected when a user chose more than five or so categories. Ultimately, the tradeoff was understanding whether it made more sense to fix edge case bugs or to focus our efforts on building new features that would be more widely used. 
+Building a dashboard is a lot harder than it seems! One of the major takeaways was to focus on the edge cases while testing the app. A recurring theme in the feedback was bugs that only occurred when the app was being used in a certain way. An example of this was the dropdowns being unable to show all the fields selected when a user chose more than five or so categories. Ultimately, the tradeoff was understanding whether it made more sense to fix edge case bugs or to focus our efforts on building new features that would be more widely used.  
 
