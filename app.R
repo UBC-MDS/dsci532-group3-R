@@ -17,6 +17,7 @@ library(scales)
 #' Plots line chart for Confirmed, Deaths and Recovered data
 #'
 #' @param chart_data: df that contains target feature versus time
+#' @param is_absolute: if the values are absolute
 #'
 #' @return line charts for Confirmed, Deaths and Recovered cases versus time
 #'   
@@ -24,7 +25,7 @@ library(scales)
 #'
 #' @examples
 #' plot_chart(chart_data)
-plot_facet <- function(chart_data) {
+plot_facet <- function(chart_data, is_absolute=TRUE) {
     chart_data <- chart_data %>%
         pivot_longer(
             c(confirmed, deaths, recovered),
@@ -32,6 +33,12 @@ plot_facet <- function(chart_data) {
             values_to = 'count'
             )
 
+    suffix <- ''
+    
+    if (!is_absolute) {
+        suffix <- 'Per 1 Million'    
+    }
+    
     plot_object <- ggplot(chart_data, aes(x = date, y = count, color = country_region)) +
         geom_line() +
         scale_x_date(labels = date_format('%b'),
@@ -41,9 +48,9 @@ plot_facet <- function(chart_data) {
         theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
         facet_wrap(~metric, ncol = 1, scales = 'free_y',
                    labeller = labeller(metric = c(
-                       'confirmed' = 'Confirmed Cases',
-                       'deaths' = 'Deaths',
-                       'recovered' = 'Recovered Cases'))
+                       'confirmed' = paste('Confirmed Cases', suffix),
+                       'deaths' = paste('Deaths', suffix),
+                       'recovered' = paste('Recovered Cases', suffix)))
                    ) +
         labs(color = 'Region')
     
@@ -552,7 +559,7 @@ app$callback(
             mutate(across(where(is.numeric), round, 0))
         # End filtering data
         
-        line_combined <- plot_facet(chart_data)
+        line_combined <- plot_facet(chart_data, data_mode == DATA_ABSOLUTE)
         
         # End Plot 3 charts
         
