@@ -73,16 +73,22 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
-plot_map <- function(map_data, title, casetype='confirmed') {
-    if (casetype == 'confirmed'){
+plot_map <- function(map_data, title, data_mode , casetype='confirmed') {
+    if (casetype == 'confirmed'  & data_mode == 2){
+        title = 'Confirmed cases(Per 1M)'}
+    else if (casetype == 'deaths'  & data_mode == 2){
+        title = 'Death cases(Per 1M)'    }
+    else if (casetype == 'recovered' & data_mode == 2){
+        title = 'Recovered cases(Per 1M)'  }
+  
+    else if (casetype == 'confirmed'  & data_mode == 1){
         title = 'Confirmed cases'}
-    else if (casetype == 'deaths'){
-        title = 'Death cases'    
-    }
-    else if (casetype == 'recovered'){
-        title = 'Recovered cases'    
-    }
+    else if (casetype == 'deaths'  & data_mode == 1){
+        title = 'Death cases'    }
+    else if (casetype == 'recovered' & data_mode == 1){
+        title = 'Recovered cases'  }
     
+  
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
@@ -354,7 +360,7 @@ linechart <- list(dccGraph(id = 'line_combined'))
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df, 'confirmed'),
+        dccGraph(figure = plot_map(country_daywise_df, 'confirmed', 1),
                  id = 'world_map')
     )
 )
@@ -604,7 +610,7 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data, map_title, casetype)
+        world_map <- plot_map(map_data, map_title, data_mode, casetype)
         
         # print(map_data)
         print(chart_data)
