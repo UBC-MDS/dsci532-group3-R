@@ -412,7 +412,7 @@ app$layout(
                             'background-color'= '#e6e6e6',
                             'padding' = 15,
                             'border-radius'= 3,
-                            'height' = '400px',
+                            'height' = '500px',
                             'position' ='relative',
                             'left' = '15px')
                     ),
@@ -421,7 +421,7 @@ app$layout(
                             dbcCardHeader('World Map'),
                             dbcCardBody(
                         world_map,
-                        style=list('width' = '15', 'height'= '350px')
+                        style=list('width' = '15', 'height'= '450px')
                             ))
                     )
                     )
@@ -430,7 +430,7 @@ app$layout(
             dbcRow(
                 loading    
             ),
-            dbcRow(style=list(height='200px')),
+            dbcRow(style=list(height='150px')),
             dbcRow(
                 list(
                     dbcCol(
