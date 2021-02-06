@@ -13,6 +13,7 @@ Other changes include:
 - New colour scale for the map to highlight sequential nature of the data
 - Map data now displays multiple metrics (previously only showed confirmed cases)
 - Scientific notation for absolute data and two significant digits shown for “Per 1M” data to improve readability
+- Clickable legend to show or hide data at the plot level instead of having to go through the selection options again
 
 ### Unresolved Issues :( 
 
