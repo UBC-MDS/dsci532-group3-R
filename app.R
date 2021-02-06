@@ -36,11 +36,8 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
                      breaks = date_breaks("month")) +
         scale_y_continuous(labels = scales::label_number_si()) +
         theme_bw() +
-        theme(axis.title.y = element_blank(), axis.title.x = element_blank())# +
-    # labs(y = title)# +
-    # ggtitle("title", subtitle = "title")+
-    # scale_color_manual(values = "steelblue")
-    
+        theme(axis.title.y = element_blank(), axis.title.x = element_blank())
+  
     if (show_legend) {
         print('show legend for ')
         print(title)
@@ -280,12 +277,8 @@ casetype <- htmlDiv(
                          list(label = 'Deaths', value = 'deaths'),
                          list(label = 'Recovered', value = 'recovered')),
             value = "confirmed"
-            
-        )
-    ))
-
-
-
+    )
+))
 
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
