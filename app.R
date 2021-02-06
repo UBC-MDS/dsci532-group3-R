@@ -390,16 +390,13 @@ app$layout(
                             region_selection,
                             country_selection,
                             date_range_selection,
-                            data_mode_selection
+                            data_mode_selection,
+                            casetype
                         ),
                         width = 4
                     ),
                     dbcCol(
                         world_map,
-                        width = 8
-                    ),
-                    dbcCol(
-                        casetype,
                         width = 8
                     )
                 ),
@@ -542,7 +539,7 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data, map_title, 'confirmed')
+        world_map <- plot_map(map_data, map_title, casetype)
         
         # print(map_data)
         print(chart_data)
