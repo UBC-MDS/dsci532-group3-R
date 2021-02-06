@@ -76,6 +76,21 @@ plot_facet <- function(chart_data, is_absolute=TRUE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
+plot_map <- function(map_data, title, data_mode , casetype='confirmed') {
+    if (casetype == 'confirmed'  & data_mode == 2){
+        title = 'Confirmed cases(Per 1M)'}
+    else if (casetype == 'deaths'  & data_mode == 2){
+        title = 'Death cases(Per 1M)'    }
+    else if (casetype == 'recovered' & data_mode == 2){
+        title = 'Recovered cases(Per 1M)'  }
+  
+    else if (casetype == 'confirmed'  & data_mode == 1){
+        title = 'Confirmed cases'}
+    else if (casetype == 'deaths'  & data_mode == 1){
+        title = 'Death cases'    }
+    else if (casetype == 'recovered' & data_mode == 1){
+        title = 'Recovered cases'  }
+    
 plot_map <- function(map_data, title, casetype='confirmed') {
     map <- plot_ly(
         map_data, 
@@ -92,6 +107,8 @@ plot_map <- function(map_data, title, casetype='confirmed') {
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
                    clickmode = 'event+select', autosize = FALSE,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
+  
+    
 }
 
 # 1.3 Function to load data
@@ -273,7 +290,7 @@ selection_mode <- htmlDiv(
 # 4.2: Selection mode for map (confirmed, deaths, recovered)
 casetype <- htmlDiv(
     list(
-        #htmlLabel('Type of cases'),
+        htmlLabel('Type of cases for Map plot'),
         dccDropdown(
             id = 'casetype',
             options=list(list(label = 'Confirmed', value = 'confirmed' ),
@@ -346,7 +363,7 @@ linechart <- list(dccGraph(id = 'line_combined'))
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df, 'confirmed'),
+        dccGraph(figure = plot_map(country_daywise_df, 'confirmed', 1),
                  id = 'world_map')
     )
 )
@@ -436,6 +453,7 @@ app$layout(
                         ),
                         lg = 8
                     )
+                    
                 ),
             ),
             dbcRow(
@@ -580,7 +598,7 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data, map_title, casetype)
+        world_map <- plot_map(map_data, map_title, data_mode, casetype)
         
         # print(map_data)
         print(chart_data)
