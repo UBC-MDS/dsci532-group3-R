@@ -87,7 +87,7 @@ plot_map <- function(map_data, title, casetype='confirmed') {
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 400,
+                   clickmode = 'event+select', autosize = FALSE, width = 700, height = 400,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
 }
 
@@ -420,7 +420,8 @@ app$layout(
                             'border-radius'= 3,
                             'height' = '500px',
                             'position' ='relative',
-                            'left' = '15px')
+                            'left' = '15px'),
+                        lg = 4
                     ),
                     dbcCol(
                         dbcCard(list(
@@ -429,7 +430,8 @@ app$layout(
                                 world_map,
                                 style=list('width' = '15', 'height'= '450px')
                             ))
-                        )
+                        ),
+                        lg = 8
                     )
                 ),
             ),
