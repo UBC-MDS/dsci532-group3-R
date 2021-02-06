@@ -34,16 +34,20 @@ plot_facet <- function(chart_data, is_absolute=TRUE) {
             )
 
     suffix <- ''
+    labels <- scales::label_number_si()
     
     if (!is_absolute) {
-        suffix <- 'Per 1 Million'    
+        suffix <- 'Per 1 Million'
+        labels <- scales::number_format(accuracy = 0.01)
     }
+    
+
     
     plot_object <- ggplot(chart_data, aes(x = date, y = count, color = country_region)) +
         geom_line() +
         scale_x_date(labels = date_format('%b'),
                      breaks = date_breaks('month')) +
-        scale_y_continuous(labels = scales::label_number_si()) +
+        scale_y_continuous(labels = labels) +
         theme_bw() +
         theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
         facet_wrap(~metric, ncol = 1, scales = 'free_y',
