@@ -376,8 +376,8 @@ loading <- htmlDiv(
 )
 
 # 5: Skeleton of the server
-
 app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
+app$title('COVID-19 Dashboard')
 
 app$layout(
     dbcContainer(
