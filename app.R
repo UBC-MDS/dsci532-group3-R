@@ -75,7 +75,7 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
-plot_map <- function(map_data, title, casetype) {
+plot_map <- function(map_data, title, casetype='confirmed') {
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
@@ -84,7 +84,7 @@ plot_map <- function(map_data, title, casetype) {
                    # zmin = 0,
                    # zmax = 1000000,
                    colorbar = list(title = title, x = 1.0, y = 0.9),
-                   z=~{{casetype}},
+                   z=~get(casetype),
                    unselected = list(marker= list(opacity = 0.1)),
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
@@ -344,7 +344,7 @@ linechart <- list(dccGraph(id = 'line_combined'))
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df, 'Confirmed'),
+        dccGraph(figure = plot_map(country_daywise_df, 'confirmed'),
                  id = 'world_map')
     )
 )
@@ -390,16 +390,13 @@ app$layout(
                             region_selection,
                             country_selection,
                             date_range_selection,
-                            data_mode_selection
+                            data_mode_selection,
+                            casetype
                         ),
                         width = 4
                     ),
                     dbcCol(
                         world_map,
-                        width = 8
-                    ),
-                    dbcCol(
-                        casetype,
                         width = 8
                     )
                 ),
