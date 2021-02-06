@@ -37,7 +37,8 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         scale_y_continuous(labels = scales::label_number_si()) +
         theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
         labs(y = title) +
-        ggtitle(title)
+        ggtitle(title)+
+        scale_color_manual(values = "steelblue")
     
     if (show_legend) {
         print('show legend for ')
@@ -421,7 +422,7 @@ app$layout(
 app$callback(
     list(
         # output('output-container-date-picker-range', 'children'),
-        output('linechart', 'figure'),
+        output('line_combined', 'figure'),
         output('world_map', 'figure')
         
     ),
@@ -508,14 +509,23 @@ app$callback(
         # End filtering data
         
         # Start Plot 3 charts
-        line_totalcases <- plot_chart(chart_data, confirmed, paste0('Confirmed', suffix))
-        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix))
-        line_totalrecovered <- plot_chart(chart_data, recovered, paste0('Recovered', suffix))
-        line_newcases <- plot_chart(chart_data, new_cases, paste0('New Cases', suffix))
-        line_newdeaths <- plot_chart(chart_data, new_deaths, paste0('New Deaths', suffix), TRUE)
-        line_newrecovered <- plot_chart(chart_data, new_recovered, paste0('New Recovered', suffix))
+        line_totalcases <- plot_chart(chart_data, confirmed, '')
+        line_totaldeaths <- plot_chart(chart_data, deaths, '')
+        line_totalrecovered <- plot_chart(chart_data, recovered, '')
+        line_newcases <- plot_chart(chart_data, new_cases, '')
+        line_newdeaths <- plot_chart(chart_data, new_deaths, '')
+        line_newrecovered <- plot_chart(chart_data, new_recovered, '')
         line_combined <- subplot(line_totalcases, line_totaldeaths, line_totalrecovered,
-                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2)
+                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2, margin = 0.03) %>% 
+            layout(annotations = list(
+                list(x = 0.0 , y = 1.1, text = "Total Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = 1.1, text = "Total Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = 1.1, text = "Total Recovered Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.0 , y = -0.16, text = "New Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = -0.16, text = "New Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = -0.16, text = "New Recovered Cases", showarrow = F, xref='paper', yref='paper')
+                
+            ))
         
         # End Plot 3 charts
         
