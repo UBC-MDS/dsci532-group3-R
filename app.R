@@ -248,7 +248,7 @@ print(regions)
 # 4.1: Learn More Button
 collapse = htmlDiv(
     list(
-        dbcButton("Learn More", id="collapse-button")
+        dbcButton("Learn More", id="collapse-button", style=list('margin-bottom'= 20))
     )
 )
 
@@ -393,8 +393,8 @@ app$layout(
             dbcRow(
                 list(
                 dbcCollapse(
-                        htmlP(list("This dashboard allows you to explore COVID-19 data. Get started by selecting the options you are interested in on the menu to the left.")
-                                ),
+                        htmlP(list("This dashboard allows you to explore COVID-19 data. Get started by selecting the options you are interested in on the menu to the left."),
+                                style=list('text-indent'='15px')),
                                 id="collapse",is_open=FALSE)
                     )),
             dbcRow(
@@ -446,7 +446,7 @@ app$layout(
                 style = list('margin-top' = '-100px')
             ),
             htmlHr(),
-            htmlP("This dashboard was made by Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, and Heidi Ye. You can find the source code original data below:"), 
+            htmlP("This dashboard was developed by Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, and Heidi Ye. You can find the source code original data below:"), 
             htmlA(
                 children = list("GitHub"),
                 href = 'https://github.com/UBC-MDS/dsci532-group3-R',
@@ -457,6 +457,7 @@ app$layout(
                 href = 'https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv',
                 style = list(color = 'blue')
             ),
+            htmlBr(),
             htmlBr(),
             htmlP(paste0("The server was last updated at: ", Sys.Date()))
         )
