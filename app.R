@@ -81,7 +81,7 @@ plot_map <- function(map_data, title, casetype='confirmed') {
                    type='choropleth', 
                    locations=~as.character(code), 
                    # locationmode='country names,
-                   colorscale = 'Portland',
+                   colorscale = 'red',
                    # zmin = 0,
                    # zmax = 1000000,
                    colorbar = list(title = title, x = 1.0, y = 0.9),
