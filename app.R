@@ -17,45 +17,48 @@ library(scales)
 #' Plots line chart for Confirmed, Deaths and Recovered data
 #'
 #' @param chart_data: df that contains target feature versus time
-#' @param col: column for target feature
-#' @param title: title for charts
+#' @param is_absolute: if the values are absolute
 #'
 #' @return line charts for Confirmed, Deaths and Recovered cases versus time
 #'   
 #' @export
 #'
 #' @examples
-#' plot_chart(chart_data, confirmed, "Confirmed Cases")
-plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
-    chart <- ggplot(chart_data) +
-        aes(x = date,
-            y = {{col}},
-            color = country_region) +
+#' plot_chart(chart_data)
+plot_facet <- function(chart_data, is_absolute=TRUE) {
+    chart_data <- chart_data %>%
+        pivot_longer(
+            c(confirmed, deaths, recovered),
+            names_to = 'metric',
+            values_to = 'count'
+            )
+
+    suffix <- ''
+    labels <- scales::label_number_si()
+    
+    if (!is_absolute) {
+        suffix <- 'Per 1 Million'
+        labels <- scales::number_format(accuracy = 0.01)
+    }
+    
+
+    
+    plot_object <- ggplot(chart_data, aes(x = date, y = count, color = country_region)) +
         geom_line() +
-        scale_x_date(labels = date_format("%b"),
-                     breaks = date_breaks("month")) +
-        scale_y_continuous(labels = scales::label_number_si()) +
+        scale_x_date(labels = date_format('%b'),
+                     breaks = date_breaks('month')) +
+        scale_y_continuous(labels = labels) +
         theme_bw() +
-        theme(axis.title.y = element_blank(), axis.title.x = element_blank())
-  
-    if (show_legend) {
-        print('show legend for ')
-        print(title)
-        chart <- chart + theme(legend.position = "bottom")
-    } else {
-        print('hide legend for ')
-        print(title)
-        chart <- chart + theme(legend.position = "none")
-    }
+        theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
+        facet_wrap(~metric, ncol = 1, scales = 'free_y',
+                   labeller = labeller(metric = c(
+                       'confirmed' = paste('Confirmed Cases', suffix),
+                       'deaths' = paste('Deaths', suffix),
+                       'recovered' = paste('Recovered Cases', suffix)))
+                   ) +
+        labs(color = 'Region')
     
-    result <- ggplotly(chart, height = 500)
-    
-    if (show_legend) {
-        result <- result %>%
-            layout(legend = list(orientation = "h", x = 0, y = 0))
-    }
-    
-    result
+    ggplotly(plot_object, height = 600)
 }
 
 
@@ -73,22 +76,39 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
+plot_map <- function(map_data, title, data_mode , casetype='confirmed') {
+    if (casetype == 'confirmed'  & data_mode == 2){
+        title = 'Confirmed cases(Per 1M)'}
+    else if (casetype == 'deaths'  & data_mode == 2){
+        title = 'Death cases(Per 1M)'    }
+    else if (casetype == 'recovered' & data_mode == 2){
+        title = 'Recovered cases(Per 1M)'  }
+  
+    else if (casetype == 'confirmed'  & data_mode == 1){
+        title = 'Confirmed cases'}
+    else if (casetype == 'deaths'  & data_mode == 1){
+        title = 'Death cases'    }
+    else if (casetype == 'recovered' & data_mode == 1){
+        title = 'Recovered cases'  }
+    
 plot_map <- function(map_data, title, casetype='confirmed') {
-    map <- plot_ly(map_data, 
-                   type='choropleth', 
-                   locations=~as.character(code), 
-                   # locationmode='country names,
-                   colorscale = 'red',
-                   # zmin = 0,
-                   # zmax = 1000000,
-                   colorbar = list(title = title, x = 1.0, y = 0.9),
-                   z=~get(casetype),
-                   unselected = list(marker= list(opacity = 0.1)),
-                   marker=list(line=list(color = 'black', width=0.2)
-                   ))
+    map <- plot_ly(
+        map_data, 
+        type = 'choropleth',
+        locations =  ~ as.character(code),
+        colorscale = 'red',
+        colorbar = list(title = title, x = 1.0, y = 0.9),
+        z =  ~ get(casetype),
+        unselected = list(marker = list(opacity = 0.1)),
+        marker = list(line = list(color = 'black', width = 0.2)),
+        width = 700, height = 400
+    )
+    
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 400,
+                   clickmode = 'event+select', autosize = FALSE,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
+  
+    
 }
 
 # 1.3 Function to load data
@@ -270,7 +290,7 @@ selection_mode <- htmlDiv(
 # 4.2: Selection mode for map (confirmed, deaths, recovered)
 casetype <- htmlDiv(
     list(
-        #htmlLabel('Type of cases'),
+        htmlLabel('Type of cases for Map plot'),
         dccDropdown(
             id = 'casetype',
             options=list(list(label = 'Confirmed', value = 'confirmed' ),
@@ -343,7 +363,7 @@ linechart <- list(dccGraph(id = 'line_combined'))
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df, 'confirmed'),
+        dccGraph(figure = plot_map(country_daywise_df, 'confirmed', 1),
                  id = 'world_map')
     )
 )
@@ -373,8 +393,8 @@ loading <- htmlDiv(
 )
 
 # 5: Skeleton of the server
-
 app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
+app$title('COVID-19 Dashboard')
 
 app$layout(
     dbcContainer(
@@ -420,7 +440,8 @@ app$layout(
                             'border-radius'= 3,
                             'height' = '500px',
                             'position' ='relative',
-                            'left' = '15px')
+                            'left' = '15px'),
+                        lg = 4
                     ),
                     dbcCol(
                         dbcCard(list(
@@ -429,8 +450,10 @@ app$layout(
                                 world_map,
                                 style=list('width' = '15', 'height'= '450px')
                             ))
-                        )
+                        ),
+                        lg = 8
                     )
+                    
                 ),
             ),
             dbcRow(
@@ -558,24 +581,7 @@ app$callback(
             mutate(across(where(is.numeric), round, 0))
         # End filtering data
         
-        # Start Plot 3 charts
-        line_totalcases <- plot_chart(chart_data, confirmed, '')
-        line_totaldeaths <- plot_chart(chart_data, deaths, '')
-        line_totalrecovered <- plot_chart(chart_data, recovered, '')
-        line_newcases <- plot_chart(chart_data, new_cases, '')
-        line_newdeaths <- plot_chart(chart_data, new_deaths, '')
-        line_newrecovered <- plot_chart(chart_data, new_recovered, '')
-        line_combined <- subplot(line_totalcases, line_totaldeaths, line_totalrecovered,
-                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2) %>% 
-            layout(annotations = list(
-                list(x = 0.0 , y = 1.05, text = "Total Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.45 , y = 1.05, text = "Total Death Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.91 , y = 1.05, text = "Total Recovered Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.0 , y = -0.08, text = "New Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.45 , y = -0.08, text = "New Death Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.91 , y = -0.08, text = "New Recovered Cases", showarrow = F, xref='paper', yref='paper')
-                
-            ))
+        line_combined <- plot_facet(chart_data, data_mode == DATA_ABSOLUTE)
         
         # End Plot 3 charts
         
@@ -592,7 +598,7 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data, map_title, casetype)
+        world_map <- plot_map(map_data, map_title, data_mode, casetype)
         
         # print(map_data)
         print(chart_data)
