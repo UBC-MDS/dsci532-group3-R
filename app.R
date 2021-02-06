@@ -35,9 +35,11 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         scale_x_date(labels = date_format("%b"),
                      breaks = date_breaks("month")) +
         scale_y_continuous(labels = scales::label_number_si()) +
-        theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
-        labs(y = title) +
-        ggtitle(title)
+        theme_bw() +
+        theme(axis.title.y = element_blank(), axis.title.x = element_blank())# +
+        # labs(y = title)# +
+        # ggtitle("title", subtitle = "title")+
+        # scale_color_manual(values = "steelblue")
     
     if (show_legend) {
         print('show legend for ')
@@ -49,7 +51,7 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         chart <- chart + theme(legend.position = "none")
     }
     
-    result <- ggplotly(chart, height = 300)
+    result <- ggplotly(chart, height = 500)
     
     if (show_legend) {
         result <- result %>%
@@ -74,18 +76,16 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
-plot_map <- function(map_data, title, casetype) {
-    
-    if (casetype == 'confirmed'){
+plot_map <- function(map_data, title, casetype='confirmed') {
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
                    # locationmode='country names,
-                   colorscale = 'Portland',
+                   colorscale = 'red',
                    # zmin = 0,
                    # zmax = 1000000,
                    colorbar = list(title = title, x = 1.0, y = 0.9),
-                   z=~ confirmed,
+                   z=~get(casetype),
                    unselected = list(marker= list(opacity = 0.1)),
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
@@ -310,9 +310,9 @@ casetype <- htmlDiv(
         #htmlLabel('Type of cases'),
         dccDropdown(
             id = 'casetype',
-            options=list(list('label' = 'Confirmed', 'value' = 'confirmed' ),
-                         list('label' = 'Deaths', 'value' = 'deaths'),
-                         list('label' = 'Recovered', 'value' = 'recovered')),
+            options=list(list(label = 'Confirmed', value = 'confirmed' ),
+                         list(label = 'Deaths', value = 'deaths'),
+                         list(label = 'Recovered', value = 'recovered')),
             value = "confirmed"
         
     )
@@ -384,7 +384,7 @@ linechart <- list(dccGraph(id = 'line_combined'))
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df, 'Confirmed', 'confirmed'),
+        dccGraph(figure = plot_map(country_daywise_df, 'confirmed'),
                  id = 'world_map')
     )
 )
@@ -448,7 +448,7 @@ app$layout(
             dbcRow(
                 list(
                     dbcCol(
-                        linechart, width = 8
+                        linechart, width = 12
                     )
                 ),
                 style = list('margin-top' = '-100px')
@@ -460,7 +460,7 @@ app$layout(
 app$callback(
     list(
         # output('output-container-date-picker-range', 'children'),
-        output('linechart', 'figure'),
+        output('line_combined', 'figure'),
         output('world_map', 'figure')
         
     ),
@@ -547,14 +547,23 @@ app$callback(
         # End filtering data
         
         # Start Plot 3 charts
-        line_totalcases <- plot_chart(chart_data, confirmed, paste0('Confirmed', suffix))
-        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix))
-        line_totalrecovered <- plot_chart(chart_data, recovered, paste0('Recovered', suffix))
-        line_newcases <- plot_chart(chart_data, new_cases, paste0('New Cases', suffix))
-        line_newdeaths <- plot_chart(chart_data, new_deaths, paste0('New Deaths', suffix), TRUE)
-        line_newrecovered <- plot_chart(chart_data, new_recovered, paste0('New Recovered', suffix))
+        line_totalcases <- plot_chart(chart_data, confirmed, '')
+        line_totaldeaths <- plot_chart(chart_data, deaths, '')
+        line_totalrecovered <- plot_chart(chart_data, recovered, '')
+        line_newcases <- plot_chart(chart_data, new_cases, '')
+        line_newdeaths <- plot_chart(chart_data, new_deaths, '')
+        line_newrecovered <- plot_chart(chart_data, new_recovered, '')
         line_combined <- subplot(line_totalcases, line_totaldeaths, line_totalrecovered,
-                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2)
+                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2) %>% 
+            layout(annotations = list(
+                list(x = 0.0 , y = 1.05, text = "Total Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = 1.05, text = "Total Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = 1.05, text = "Total Recovered Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.0 , y = -0.08, text = "New Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = -0.08, text = "New Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = -0.08, text = "New Recovered Cases", showarrow = F, xref='paper', yref='paper')
+                
+            ))
         
         # End Plot 3 charts
         
