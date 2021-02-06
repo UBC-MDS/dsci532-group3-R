@@ -6,7 +6,7 @@ The goal for this last milestone was to finalize a dashboard that incorporated a
 
 One of the most significant changes in this iteration is the design changes that were implemented. This new version has stylizing that helps users distinguish between areas they can input information and areas where they can view and interact with the dashboard. There is also additional text and links so users can find more information about who built the app, the last updated time and where they can find the original data and source code. Finally, the aesthetics of the plots have been improved to be more visually appealing. 
 
-This version of the app also included three additional plots to convey X, Y, Z, faceted as one object. The purpose of this was to give users a more comprehensive level of  information - similar to what was provided in the original dataset. 
+This version of the app also included three additional plots to convey “New Confirmed Cases”, “New Death Cases” and “New Recovered Cases” faceted as one object. The purpose of this was to give users a more comprehensive level of  information - similar to what was provided in the original dataset. 
 
 Other changes include: 
 
@@ -15,11 +15,11 @@ Other changes include:
 
 ### Unresolved Issues :( 
 
-Although the app has significantly more features and improved user experience since the first version, there are still several known issues that remain unsolved.
+Although the app has significantly more features and improved user experience since the first version, there are still several known issues that remain.
 
-- Chart legend thing - blah blah blah
-- Map clickability - did we ever do anything with this?
-- Anything else?? 
+1. When the “per 1M” functionality is toggled, values on the y-axis appear very small. This was a known issue which is why in Milestone 3 the functionality was converted from “per capita” to “per 1M”. Since we were not able to make the y-axis dynamic, we decided to stay with scientific notation for the absolute numbers. 
+
+2. When users select more than five or so fields in a dropdown, two issues occur. Firstly, the dropdown field does not expand large enough to view all the selected options. Secondly, the expanded text pushes down the remaining selection options beyond the grey box that highlights the selection options. In Milestone 4, we explored limiting the user to five inputs but there didn’t appear to be an easy way to implement this with the default parameters. 
 
 ### Final Thoughts
 
