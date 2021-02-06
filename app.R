@@ -28,18 +28,24 @@ plot_facet <- function(chart_data) {
     chart_data <- chart_data %>%
         pivot_longer(
             c(confirmed, deaths, recovered),
-            names_to = "metric",
-            values_to = "count"
+            names_to = 'metric',
+            values_to = 'count'
             )
 
     plot_object <- ggplot(chart_data, aes(x = date, y = count, color = country_region)) +
         geom_line() +
-        scale_x_date(labels = date_format("%b"),
-                     breaks = date_breaks("month")) +
+        scale_x_date(labels = date_format('%b'),
+                     breaks = date_breaks('month')) +
         scale_y_continuous(labels = scales::label_number_si()) +
         theme_bw() +
         theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
-        facet_wrap(~metric, ncol = 1, scales = "free_y")
+        facet_wrap(~metric, ncol = 1, scales = 'free_y',
+                   labeller = labeller(metric = c(
+                       'confirmed' = 'Confirmed Cases',
+                       'deaths' = 'Deaths',
+                       'recovered' = 'Recovered Cases'))
+                   ) +
+        labs(color = 'Region')
     
     ggplotly(plot_object, height = 600)
 }
