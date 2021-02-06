@@ -35,10 +35,11 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         scale_x_date(labels = date_format("%b"),
                      breaks = date_breaks("month")) +
         scale_y_continuous(labels = scales::label_number_si()) +
-        theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
-        labs(y = title) +
-        ggtitle(title)+
-        scale_color_manual(values = "steelblue")
+        theme_bw() +
+        theme(axis.title.y = element_blank(), axis.title.x = element_blank())# +
+        # labs(y = title)# +
+        # ggtitle("title", subtitle = "title")+
+        # scale_color_manual(values = "steelblue")
     
     if (show_legend) {
         print('show legend for ')
@@ -50,7 +51,7 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         chart <- chart + theme(legend.position = "none")
     }
     
-    result <- ggplotly(chart, height = 300)
+    result <- ggplotly(chart, height = 500)
     
     if (show_legend) {
         result <- result %>%
@@ -407,7 +408,7 @@ app$layout(
             dbcRow(
                 list(
                     dbcCol(
-                        linechart, width = 8
+                        linechart, width = 12
                     )
                 ),
                 style = list('margin-top' = '-100px')
@@ -513,14 +514,14 @@ app$callback(
         line_newdeaths <- plot_chart(chart_data, new_deaths, '')
         line_newrecovered <- plot_chart(chart_data, new_recovered, '')
         line_combined <- subplot(line_totalcases, line_totaldeaths, line_totalrecovered,
-                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2, margin = 0.03) %>% 
+                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2) %>% 
             layout(annotations = list(
-                list(x = 0.0 , y = 1.1, text = "Total Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.45 , y = 1.1, text = "Total Death Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.91 , y = 1.1, text = "Total Recovered Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.0 , y = -0.16, text = "New Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.45 , y = -0.16, text = "New Death Cases", showarrow = F, xref='paper', yref='paper'),
-                list(x = 0.91 , y = -0.16, text = "New Recovered Cases", showarrow = F, xref='paper', yref='paper')
+                list(x = 0.0 , y = 1.05, text = "Total Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = 1.05, text = "Total Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = 1.05, text = "Total Recovered Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.0 , y = -0.08, text = "New Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = -0.08, text = "New Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = -0.08, text = "New Recovered Cases", showarrow = F, xref='paper', yref='paper')
                 
             ))
         
