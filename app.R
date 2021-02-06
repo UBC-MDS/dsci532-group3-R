@@ -74,7 +74,9 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
-plot_map <- function(map_data, title, case_type) {
+plot_map <- function(map_data, title, casetype) {
+    
+    if (casetype == 'confirmed'){
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
@@ -83,14 +85,53 @@ plot_map <- function(map_data, title, case_type) {
                    # zmin = 0,
                    # zmax = 1000000,
                    colorbar = list(title = title, x = 1.0, y = 0.9),
-                   z=~{{case_type}},
+                   z=~ confirmed,
                    unselected = list(marker= list(opacity = 0.1)),
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
                    clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
-}
+    }
+    
+    else if (casetype == 'deaths'){
+        map <- plot_ly(map_data, 
+                       type='choropleth', 
+                       locations=~as.character(code), 
+                       # locationmode='country names,
+                       colorscale = 'Portland',
+                       # zmin = 0,
+                       # zmax = 1000000,
+                       colorbar = list(title = title, x = 1.0, y = 0.9),
+                       z=~ deaths,
+                       unselected = list(marker= list(opacity = 0.1)),
+                       marker=list(line=list(color = 'black', width=0.2)
+                       ))
+        map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
+                       clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
+                       margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
+    }
+    
+    else if (casetype == 'recovered'){
+        map <- plot_ly(map_data, 
+                       type='choropleth', 
+                       locations=~as.character(code), 
+                       # locationmode='country names,
+                       colorscale = 'Portland',
+                       # zmin = 0,
+                       # zmax = 1000000,
+                       colorbar = list(title = title, x = 1.0, y = 0.9),
+                       z=~ recovered,
+                       unselected = list(marker= list(opacity = 0.1)),
+                       marker=list(line=list(color = 'black', width=0.2)
+                       ))
+        map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
+                       clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
+                       margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
+    }
+    
+    
+    }
 
 # 1.3 Function to load data
 
@@ -343,7 +384,7 @@ linechart <- list(dccGraph(id = 'line_combined'))
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df, 'Confirmed'),
+        dccGraph(figure = plot_map(country_daywise_df, 'Confirmed', 'confirmed'),
                  id = 'world_map')
     )
 )
@@ -389,18 +430,16 @@ app$layout(
                             region_selection,
                             country_selection,
                             date_range_selection,
-                            data_mode_selection
+                            data_mode_selection,
+                            casetype
                         ),
                         width = 4
                     ),
                     dbcCol(
                         world_map,
                         width = 8
-                    ),
-                    dbcCol(
-                        casetype,
-                        #width = 8
-                    ),
+                    )
+                    
                 ),
             ),
             dbcRow(
@@ -432,7 +471,7 @@ app$callback(
         input('date_range_selection', 'start_date'),
         input('date_range_selection', 'end_date'),
         input('data_mode_selection', 'value'),
-        input('case_type', 'value'),
+        input('casetype', 'value')
     ),
     #' Updates data based on selection criteria and outputs charts and map
     #'
@@ -446,7 +485,7 @@ app$callback(
     #' @return three plots and world map
     #'   
     #' @export
-    function(selection_mode, region, country, start_date, end_date, data_mode, case_type) {
+    function(selection_mode, region, country, start_date, end_date, data_mode, casetype) {
         print("callback function")
         # Start filtering data
         SELECTION_WORLD = 1L
@@ -532,7 +571,7 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data, map_title, case_type)
+        world_map <- plot_map(map_data, map_title, casetype)
         
         # print(map_data)
         print(chart_data)
