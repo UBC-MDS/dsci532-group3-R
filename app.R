@@ -36,11 +36,8 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
                      breaks = date_breaks("month")) +
         scale_y_continuous(labels = scales::label_number_si()) +
         theme_bw() +
-        theme(axis.title.y = element_blank(), axis.title.x = element_blank())# +
-        # labs(y = title)# +
-        # ggtitle("title", subtitle = "title")+
-        # scale_color_manual(values = "steelblue")
-    
+        theme(axis.title.y = element_blank(), axis.title.x = element_blank())
+  
     if (show_legend) {
         print('show legend for ')
         print(title)
@@ -99,7 +96,7 @@ plot_map <- function(map_data, title, casetype='confirmed') {
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
+                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 400,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
   
     
@@ -258,7 +255,12 @@ print(regions)
 
 # 4: Declare objects
 
-# 4.1: Declare options for Selection Mode / Data Mode as factors
+# 4.1: Learn More Button
+collapse = htmlDiv(
+    list(
+        dbcButton("Learn More", id="collapse-button", style=list('margin-bottom'= 20))
+    )
+)
 
 # 4.2: Selection mode (World, Regions, Countries)
 selection_mode <- htmlDiv(
@@ -286,12 +288,8 @@ casetype <- htmlDiv(
                          list(label = 'Deaths', value = 'deaths'),
                          list(label = 'Recovered', value = 'recovered')),
             value = "confirmed"
-        
     )
 ))
-
-
-
 
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
@@ -391,8 +389,30 @@ app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 
 app$layout(
     dbcContainer(
-        list (
-            htmlH3('WHO Coronavirus Disease (COVID-19) Dashboard'),
+        list(
+            dbcRow(
+                list(
+                    dbcCol(
+                        list(
+                            htmlH1('WHO Coronavirus Disease (COVID-19) Dashboard',
+                                   style=list(
+                                       'backgroundColor'= '#e6e6e6',
+                                       'padding'= 30,
+                                       'color'= 'black',
+                                       'margin-top'= 20,
+                                       'margin-bottom'= 20,
+                                       'text-align'= 'left',
+                                       'font-size'= '25px',
+                                       'border-radius'= 3,
+                                       'width' = '1110px')))),
+                    dbcCol(collapse))),
+            dbcRow(
+                list(
+                    dbcCollapse(
+                        htmlP(list("This dashboard allows you to explore COVID-19 data. Get started by selecting the options you are interested in on the menu to the left."),
+                              style=list('text-indent'='15px')),
+                        id="collapse",is_open=FALSE)
+                )),
             dbcRow(
                 list(
                     dbcCol(
@@ -405,11 +425,22 @@ app$layout(
                             data_mode_selection,
                             casetype
                         ),
-                        width = 4
+                        style=list(
+                            'background-color'= '#e6e6e6',
+                            'padding' = 15,
+                            'border-radius'= 3,
+                            'height' = '500px',
+                            'position' ='relative',
+                            'left' = '15px')
                     ),
                     dbcCol(
-                        world_map,
-                        width = 8
+                        dbcCard(list(
+                            dbcCardHeader('World Map'),
+                            dbcCardBody(
+                                world_map,
+                                style=list('width' = '15', 'height'= '450px')
+                            ))
+                        )
                     )
                     
                 ),
@@ -417,17 +448,38 @@ app$layout(
             dbcRow(
                 loading    
             ),
+            dbcRow(style=list(height='125px')),
             dbcRow(
                 list(
                     dbcCol(
-                        linechart, width = 12
-                    )
-                ),
-                style = list('margin-top' = '-100px')
-            )
+                        dbcCard(
+                            list(
+                                dbcCardHeader('Detailed View'),
+                                dbcCardBody(
+                                    linechart, style=list('width' = '1100px'))
+                            )
+                        ),
+                        style = list('margin-top' = '-100px')
+                    ))),
+            htmlHr(),
+            htmlP("This dashboard was developed by Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, and Heidi Ye. You can find the source code original data below:"), 
+            htmlA(
+                children = list("GitHub"),
+                href = 'https://github.com/UBC-MDS/dsci532-group3-R',
+                style = list(color = 'blue', padding = '30px')
+            ),
+            htmlA(
+                children = list("COVID-19 Data"),
+                href = 'https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv',
+                style = list(color = 'blue')
+            ),
+            htmlBr(),
+            htmlBr(),
+            htmlP(paste0("The server was last updated at: ", Sys.Date()))
         )
     )
 )
+
 
 app$callback(
     list(
@@ -638,6 +690,34 @@ app$callback(
         Sys.sleep(time_to_sleep)
         
         ''
+    }
+)
+
+# Function for learn more collapse button
+app$callback(
+    output('collapse', 'is_open'),
+    params = list(
+        input('collapse-button', 'n_clicks'), state('collapse', 'is_open')
+    ),
+    #' Determines if toggle button is selected
+    #'
+    #' @param n number of clicks
+    #' @param is_open is the toggle in open mode
+    #'
+    #' @return collapsed content
+    #'   
+    #' @export
+    function(n_clicks, is_open) {
+        if (n_clicks) {
+            #print(!is_open)
+            
+            return (!is_open)
+        }
+        else {
+            print(is_open)
+            return (is_open)
+            
+        }
     }
 )
 
