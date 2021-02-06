@@ -35,9 +35,11 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         scale_x_date(labels = date_format("%b"),
                      breaks = date_breaks("month")) +
         scale_y_continuous(labels = scales::label_number_si()) +
-        theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
-        labs(y = title) +
-        ggtitle(title)
+        theme_bw() +
+        theme(axis.title.y = element_blank(), axis.title.x = element_blank())# +
+    # labs(y = title)# +
+    # ggtitle("title", subtitle = "title")+
+    # scale_color_manual(values = "steelblue")
     
     if (show_legend) {
         print('show legend for ')
@@ -48,8 +50,8 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         print(title)
         chart <- chart + theme(legend.position = "none")
     }
-        
-    result <- ggplotly(chart, height = 300)
+    
+    result <- ggplotly(chart, height = 500)
     
     if (show_legend) {
         result <- result %>%
@@ -74,21 +76,21 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #'
 #' @examples
 #' plot_map(map_data, "World Map")
-plot_map <- function(map_data, title) {
+plot_map <- function(map_data, title, casetype='confirmed') {
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
                    # locationmode='country names,
-                   colorscale = 'Portland',
+                   colorscale = 'red',
                    # zmin = 0,
                    # zmax = 1000000,
                    colorbar = list(title = title, x = 1.0, y = 0.9),
-                   z=~confirmed,
+                   z=~get(casetype),
                    unselected = list(marker= list(opacity = 0.1)),
                    marker=list(line=list(color = 'black', width=0.2)
                    ))
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 300,
+                   clickmode = 'event+select', autosize = FALSE, width = 800, height = 400,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
 }
 
@@ -255,17 +257,35 @@ collapse = htmlDiv(
 # 4.2: Selection mode (World, Regions, Countries)
 selection_mode <- htmlDiv(
     list(
-    htmlLabel('Selection Mode'),
-    dccRadioItems(
-        id = 'selection_mode',
-        options=list(list('label' = 'World', 'value' = 1),
-                     list('label' = 'Regions', 'value' = 2),
-                     list('label' = 'Countries', 'value' = 3)),
-        value=1,
-        labelStyle=list('margin-right' = '15px'),
-        inputStyle=list('margin-right'= '5px'))
+        htmlLabel('Selection Mode'),
+        dccRadioItems(
+            id = 'selection_mode',
+            options=list(list('label' = 'World', 'value' = 1),
+                         list('label' = 'Regions', 'value' = 2),
+                         list('label' = 'Countries', 'value' = 3)),
+            value=1,
+            labelStyle=list('margin-right' = '15px'),
+            inputStyle=list('margin-right'= '5px'))  
     )
 )
+
+
+# 4.2: Selection mode for map (confirmed, deaths, recovered)
+casetype <- htmlDiv(
+    list(
+        #htmlLabel('Type of cases'),
+        dccDropdown(
+            id = 'casetype',
+            options=list(list(label = 'Confirmed', value = 'confirmed' ),
+                         list(label = 'Deaths', value = 'deaths'),
+                         list(label = 'Recovered', value = 'recovered')),
+            value = "confirmed"
+            
+        )
+    ))
+
+
+
 
 # 4.2.1: Empty Div for World
 blank_div <- htmlDiv(
@@ -273,7 +293,7 @@ blank_div <- htmlDiv(
     style = list(
         'color' = 'white',
         'background-color' = 'red'
-        )
+    )
 )
 
 # 4.2.2: Dropdown list for Regions
@@ -318,27 +338,19 @@ date_range_selection <- htmlDiv(
             start_date = as.Date('2020-01-22'),
             end_date = as.Date('2020-07-27')
         ),
-    htmlDiv(id='output-container-date-picker-range'),
-    htmlBr()
+        htmlDiv(id='output-container-date-picker-range')
     )
 )
 
-# 4.4: Line charts
+# 4.4: Line charts Combined
 
-# 4.4.1: Confirmed Cases
-total_cases_linechart <- list(dccGraph(id = 'line_totalcases'))
-
-
-# 4.4.2: Deaths
-total_death_linechart <- list(dccGraph(id = 'line_totaldeaths'))
-
-# 4.4.3: Recoveries
-total_recovered_linechart <- list(dccGraph(id = 'line_totalrecovered'))
+# 4.4.1: Faceted Plot
+linechart <- list(dccGraph(id = 'line_combined'))
 
 # 4.5: Map
 world_map <- htmlDiv(
     list(
-        dccGraph(figure = plot_map(country_daywise_df, 'Confirmed'),
+        dccGraph(figure = plot_map(country_daywise_df, 'confirmed'),
                  id = 'world_map')
     )
 )
@@ -351,7 +363,7 @@ data_mode_selection <- htmlDiv(
         dccRadioItems(
             id = 'data_mode_selection',
             options=list(list('label' = 'Absolute', 'value' = 1),
-                list('label' = 'Per 1M', 'value' = 2)),
+                         list('label' = 'Per 1M', 'value' = 2)),
             value=1,
             labelStyle=list('margin-right' = '25px'),
             inputStyle=list('margin-right'= '5px')
@@ -392,11 +404,11 @@ app$layout(
                     dbcCol(collapse))),
             dbcRow(
                 list(
-                dbcCollapse(
+                    dbcCollapse(
                         htmlP(list("This dashboard allows you to explore COVID-19 data. Get started by selecting the options you are interested in on the menu to the left."),
-                                style=list('text-indent'='15px')),
-                                id="collapse",is_open=FALSE)
-                    )),
+                              style=list('text-indent'='15px')),
+                        id="collapse",is_open=FALSE)
+                )),
             dbcRow(
                 list(
                     dbcCol(
@@ -406,7 +418,8 @@ app$layout(
                             region_selection,
                             country_selection,
                             date_range_selection,
-                            data_mode_selection
+                            data_mode_selection,
+                            casetype
                         ),
                         style=list(
                             'background-color'= '#e6e6e6',
@@ -420,31 +433,29 @@ app$layout(
                         dbcCard(list(
                             dbcCardHeader('World Map'),
                             dbcCardBody(
-                        world_map,
-                        style=list('width' = '15', 'height'= '450px')
+                                world_map,
+                                style=list('width' = '15', 'height'= '450px')
                             ))
-                    )
+                        )
                     )
                 ),
             ),
             dbcRow(
                 loading    
             ),
-            dbcRow(style=list(height='150px')),
+            dbcRow(style=list(height='125px')),
             dbcRow(
                 list(
                     dbcCol(
-                        total_cases_linechart, width = 4
-                    ),
-                    dbcCol(
-                        total_death_linechart, width = 4
-                    ),
-                    dbcCol(
-                        total_recovered_linechart, width = 4
-                    )
-                ),
-                style = list('margin-top' = '-100px')
-            ),
+                        dbcCard(
+                            list(
+                                dbcCardHeader('Detailed View'),
+                                dbcCardBody(
+                                    linechart, style=list('width' = '1100px'))
+                            )
+                        ),
+                        style = list('margin-top' = '-100px')
+                    ))),
             htmlHr(),
             htmlP("This dashboard was developed by Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, and Heidi Ye. You can find the source code original data below:"), 
             htmlA(
@@ -464,13 +475,13 @@ app$layout(
     )
 )
 
+
 app$callback(
     list(
         # output('output-container-date-picker-range', 'children'),
-        output('line_totalcases', 'figure'),
-        output('line_totaldeaths', 'figure'),
-        output('line_totalrecovered', 'figure'),
+        output('line_combined', 'figure'),
         output('world_map', 'figure')
+        
     ),
     list(
         input('selection_mode', 'value'),
@@ -478,7 +489,8 @@ app$callback(
         input('country_selection', 'value'),
         input('date_range_selection', 'start_date'),
         input('date_range_selection', 'end_date'),
-        input('data_mode_selection', 'value')
+        input('data_mode_selection', 'value'),
+        input('casetype', 'value')
     ),
     #' Updates data based on selection criteria and outputs charts and map
     #'
@@ -492,16 +504,16 @@ app$callback(
     #' @return three plots and world map
     #'   
     #' @export
-    function(selection_mode, region, country, start_date, end_date, data_mode) {
+    function(selection_mode, region, country, start_date, end_date, data_mode, casetype) {
         print("callback function")
         # Start filtering data
         SELECTION_WORLD = 1L
         SELECTION_REGION = 2L
         SELECTION_COUNTRY = 3L
-
+        
         DATA_ABSOLUTE = 1L
         DATA_PER1M = 2L
-
+        
         chart_data <- world_daywise_df
         map_data <- country_daywise_df
         
@@ -528,7 +540,7 @@ app$callback(
         
         map_data <- map_data %>%
             filter(date >= start_date & date <= end_date)        
-
+        
         map_title <- 'Confirmed Cases'
         suffix <- ''
         if (data_mode == DATA_PER1M) {
@@ -554,9 +566,23 @@ app$callback(
         # End filtering data
         
         # Start Plot 3 charts
-        line_totalcases <- plot_chart(chart_data, confirmed, paste0('Confirmed', suffix))
-        line_totaldeaths <- plot_chart(chart_data, deaths, paste0('Deaths', suffix), TRUE)
-        line_totalrecovered <- plot_chart(chart_data, recovered, paste0('Recovered', suffix))
+        line_totalcases <- plot_chart(chart_data, confirmed, '')
+        line_totaldeaths <- plot_chart(chart_data, deaths, '')
+        line_totalrecovered <- plot_chart(chart_data, recovered, '')
+        line_newcases <- plot_chart(chart_data, new_cases, '')
+        line_newdeaths <- plot_chart(chart_data, new_deaths, '')
+        line_newrecovered <- plot_chart(chart_data, new_recovered, '')
+        line_combined <- subplot(line_totalcases, line_totaldeaths, line_totalrecovered,
+                                 line_newcases, line_newdeaths, line_newrecovered, nrows = 2) %>% 
+            layout(annotations = list(
+                list(x = 0.0 , y = 1.05, text = "Total Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = 1.05, text = "Total Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = 1.05, text = "Total Recovered Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.0 , y = -0.08, text = "New Confirmed Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.45 , y = -0.08, text = "New Death Cases", showarrow = F, xref='paper', yref='paper'),
+                list(x = 0.91 , y = -0.08, text = "New Recovered Cases", showarrow = F, xref='paper', yref='paper')
+                
+            ))
         
         # End Plot 3 charts
         
@@ -573,13 +599,13 @@ app$callback(
                       population = mean(population)) %>%
             ungroup()
         
-        world_map <- plot_map(map_data, map_title)
+        world_map <- plot_map(map_data, map_title, casetype)
         
         # print(map_data)
         print(chart_data)
         # End world map
         
-        list(line_totalcases, line_totaldeaths, line_totalrecovered, world_map)
+        list(line_combined, world_map)
     }
 )
 
@@ -611,7 +637,7 @@ app$callback(
         world_style = list('height' = '35px')
         region_style = list('display' = 'none')
         country_style = list('display'= 'none')
-
+        
         print("before")
         if (selection_mode == SELECTION_REGION){
             print('Region mode')
@@ -679,7 +705,7 @@ app$callback(
     function(n_clicks, is_open) {
         if (n_clicks) {
             #print(!is_open)
-
+            
             return (!is_open)
         }
         else {
