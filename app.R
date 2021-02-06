@@ -77,6 +77,15 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
 #' @examples
 #' plot_map(map_data, "World Map")
 plot_map <- function(map_data, title, casetype='confirmed') {
+    if (casetype == 'confirmed'){
+        title = 'Confirmed cases'}
+    else if (casetype == 'deaths'){
+        title = 'Death cases'    
+    }
+    else if (casetype == 'recovered'){
+        title = 'Recovered cases'    
+    }
+    
     map <- plot_ly(map_data, 
                    type='choropleth', 
                    locations=~as.character(code), 
@@ -92,46 +101,9 @@ plot_map <- function(map_data, title, casetype='confirmed') {
     map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
                    clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
                    margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
-    }
+  
     
-    else if (casetype == 'deaths'){
-        map <- plot_ly(map_data, 
-                       type='choropleth', 
-                       locations=~as.character(code), 
-                       # locationmode='country names,
-                       colorscale = 'Portland',
-                       # zmin = 0,
-                       # zmax = 1000000,
-                       colorbar = list(title = title, x = 1.0, y = 0.9),
-                       z=~ deaths,
-                       unselected = list(marker= list(opacity = 0.1)),
-                       marker=list(line=list(color = 'black', width=0.2)
-                       ))
-        map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                       clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
-                       margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
-    }
-    
-    else if (casetype == 'recovered'){
-        map <- plot_ly(map_data, 
-                       type='choropleth', 
-                       locations=~as.character(code), 
-                       # locationmode='country names,
-                       colorscale = 'Portland',
-                       # zmin = 0,
-                       # zmax = 1000000,
-                       colorbar = list(title = title, x = 1.0, y = 0.9),
-                       z=~ recovered,
-                       unselected = list(marker= list(opacity = 0.1)),
-                       marker=list(line=list(color = 'black', width=0.2)
-                       ))
-        map %>% layout(geo = list(projection = list(type = "natural earth"), showframe = FALSE),
-                       clickmode = 'event+select', autosize = FALSE, width = 800, height = 500,
-                       margin = list('r' = 0, 't' = 0, 'l' = 0, 'b' = 0))
-    }
-    
-    
-    }
+}
 
 # 1.3 Function to load data
 
@@ -307,7 +279,7 @@ selection_mode <- htmlDiv(
 # 4.2: Selection mode for map (confirmed, deaths, recovered)
 casetype <- htmlDiv(
     list(
-        #htmlLabel('Type of cases'),
+        htmlLabel('Type of cases for Map plot'),
         dccDropdown(
             id = 'casetype',
             options=list(list(label = 'Confirmed', value = 'confirmed' ),
