@@ -37,8 +37,7 @@ plot_chart <- function(chart_data, col, title, show_legend=FALSE) {
         scale_y_continuous(labels = scales::label_number_si()) +
         theme(axis.title.y = element_blank(), axis.title.x = element_blank()) +
         labs(y = title) +
-        ggtitle(title)+
-        scale_color_manual(values = "steelblue")
+        ggtitle(title)
     
     if (show_legend) {
         print('show legend for ')
