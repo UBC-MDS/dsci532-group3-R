@@ -486,12 +486,12 @@ app$callback(
         # End filtering data
         
         # Start Plot 3 charts
-        line_totalcases <- plot_chart(chart_data, confirmed, paste0(''))
-        line_totaldeaths <- plot_chart(chart_data, deaths, paste0(''))
-        line_totalrecovered <- plot_chart(chart_data, recovered, paste0(''))
-        line_newcases <- plot_chart(chart_data, new_cases, paste0(''))
-        line_newdeaths <- plot_chart(chart_data, new_deaths, paste0(''))
-        line_newrecovered <- plot_chart(chart_data, new_recovered, paste0(''))
+        line_totalcases <- plot_chart(chart_data, confirmed, '')
+        line_totaldeaths <- plot_chart(chart_data, deaths, '')
+        line_totalrecovered <- plot_chart(chart_data, recovered, '')
+        line_newcases <- plot_chart(chart_data, new_cases, '')
+        line_newdeaths <- plot_chart(chart_data, new_deaths, '')
+        line_newrecovered <- plot_chart(chart_data, new_recovered, '')
         line_combined <- subplot(line_totalcases, line_totaldeaths, line_totalrecovered,
                                  line_newcases, line_newdeaths, line_newrecovered, nrows = 2, margin = 0.03) %>% 
             layout(annotations = list(
